@@ -1083,7 +1083,7 @@ body.page-papers .back-home{display:flex}
           <h3>দ্রুত কাজ</h3>
           <div class="actions">
             <button class="act" data-go="years"><span class="e">📅</span>নতুন বছর যোগ</button>
-            <button class="act" data-go="students"><span class="e">🧑‍🎓</span>পরীক্ষার্থী যোগ</button>
+            <button class="act" data-go="students"><span class="e">🧑🎓</span>পরীক্ষার্থী যোগ</button>
             <button class="act" data-go="results"><span class="e">📤</span>ফলাফল আপলোড</button>
             <button class="act" data-go="notices"><span class="e">📢</span>নোটিশ প্রকাশ</button>
           </div>
@@ -1831,7 +1831,7 @@ document.addEventListener('click', e => {
    ফাইল পড়া: CSV ও Excel (.xlsx) — কোনো বাইরের লাইব্রেরি লাগে না
    ========================================================= */
 const toAscii = v => String(v ?? '').replace(/[০-৯]/g, d => bnDigits.indexOf(d));
-const nk = v => toAscii(v).normalize('NFC').toLowerCase().replace(/[\s.:ঃ_\-–—।()\/‌‍]/g, '');
+const nk = v => toAscii(v).normalize('NFC').toLowerCase().replace(/[\s.:ঃ_\-–—।()\/]/g, '');
 const cleanNum = v => toAscii(v).replace(/\s+/g, '').replace(/\.0+$/, '');
 
 /* ---------- জন্ম তারিখ: যেকোনো ফরম্যাট → dd/mm/yyyy (বাংলা অঙ্কে) ----------
@@ -2156,7 +2156,7 @@ function downloadTemplate(){
   const h = ['রোল','রেজিস্ট্রেশন নং','নাম','পিতার নাম','মাতার নাম','শ্রেণি','জন্ম তারিখ','প্রতিষ্ঠান'];
   for(let i = 1; i <= 6; i++) ['কোড','নাম','পূর্ণমান','প্রাপ্ত নম্বর'].forEach(x => h.push('বিষয়' + toBn(i) + ' ' + x));
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['﻿' + h.join(',') + '\r\n'], { type:'text/csv;charset=utf-8' }));
+  a.href = URL.createObjectURL(new Blob(['' + h.join(',') + '\r\n'], { type:'text/csv;charset=utf-8' }));
   a.download = 'result-template.csv'; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1500);
 }
@@ -2343,7 +2343,7 @@ function drawGradingBody(draft){
     <div class="gs-stats">
       <div class="gs-stat"><i>🎯</i><div><span>পাশের হার</span><b id="gsPass">${toBn(+(+G.passPercent).toFixed(2))}%</b></div></div>
       <div class="gs-stat"><i>🏅</i><div><span>গ্রেড সংখ্যা</span><b>${toBn(G.grades.length)} টি</b></div></div>
-      <div class="gs-stat"><i>🧑‍🎓</i><div><span>পরীক্ষার্থী</span><b>${toBn(n)} জন</b></div></div>
+      <div class="gs-stat"><i>🧑🎓</i><div><span>পরীক্ষার্থী</span><b>${toBn(n)} জন</b></div></div>
       <div class="gs-stat ${own ? 'own' : ''}"><i>${own ? '✅' : '⚙️'}</i><div><span>অবস্থা</span><b>${own ? 'নিজস্ব নিয়ম' : 'ডিফল্ট নিয়ম'}</b></div></div>
     </div>
 
@@ -2633,7 +2633,7 @@ function renderStudents(){
   if(!ys.some(y => y.label === stState.year)) stState.year = '';
   host.innerHTML = `
     <div class="panel">
-      <h3>🧑‍🎓 পরীক্ষার্থীদের ফলাফল তালিকা</h3>
+      <h3>🧑🎓 পরীক্ষার্থীদের ফলাফল তালিকা</h3>
       <div class="st-tools">
         <select class="a-in" id="stYear" aria-label="পরীক্ষার বছর"><option value="">পরীক্ষার বছর নির্বাচন করুন</option>${ys.map(y => `<option value="${esc(y.label)}"${y.label === stState.year ? ' selected' : ''}>${esc(y.label)} (${toBn(Store.count(y.label))} জন)</option>`).join('')}</select>
         <input class="a-in" id="stQ" type="search" placeholder="নাম, রোল বা রেজি. নম্বর দিয়ে খুঁজুন" value="${esc(stState.q)}" ${stState.year ? '' : 'disabled'}>
