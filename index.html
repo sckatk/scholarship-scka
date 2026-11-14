@@ -641,6 +641,22 @@ body.cloud .demo-strip,body.cloud .notice-demo:not(.warn){display:none!important
 /* =========================================================
    ট্রান্সক্রিপ্ট (ফলাফল পেইজ)
    ========================================================= */
+
+.cheer{display:flex;align-items:center;gap:14px;max-width:820px;margin:0 auto 14px;padding:16px 18px;border-radius:20px;color:#fff;background:linear-gradient(135deg,var(--emerald-900),var(--emerald-600));border:1.5px solid rgba(230,191,85,.7);box-shadow:0 12px 30px -14px rgba(2,61,51,.6);animation:cheerIn .6s cubic-bezier(.2,.9,.3,1.2) both}
+.cheer[hidden]{display:none}
+.cheer{position:relative;overflow:hidden}
+.cheer::before{content:'✨';position:absolute;right:12px;top:6px;font-size:1.3rem;opacity:.9}
+.cheer::after{content:'🎉';position:absolute;right:14px;bottom:6px;font-size:1.5rem;opacity:.95}
+.cheer.soft::before,.cheer.soft::after{content:none}
+.cheer.gold{background:radial-gradient(120% 140% at 90% -10%,rgba(230,191,85,.45),transparent 55%),linear-gradient(135deg,var(--emerald-900),var(--emerald-600))}
+.cheer .cb{flex:0 0 auto;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:2rem;background:radial-gradient(circle at 30% 25%,#fff,var(--gold-100));box-shadow:0 0 0 4px rgba(230,191,85,.55)}
+.cheer.silver .cb{box-shadow:0 0 0 4px rgba(210,220,226,.85)}
+.cheer.green .cb{box-shadow:0 0 0 4px rgba(18,160,127,.6)}
+.cheer.soft{background:linear-gradient(135deg,#355f55,#4f7f73);border-color:rgba(255,255,255,.25)}
+.cheer h3{margin:0 0 3px;font-size:clamp(1.05rem,4.6vw,1.35rem);line-height:1.35}
+.cheer p{margin:0;opacity:.93;font-size:.95rem;line-height:1.5}
+@keyframes cheerIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cheer{animation:none}}
 body.tmode #search, body.tmode #about-exam, body.tmode #notice, body.tmode #about-org,
 body.tmode #contact, body.tmode #publicSite footer, body.tmode .demo-strip{display:none}
 #transcriptSection[hidden]{display:none}
@@ -841,6 +857,7 @@ body.page-papers .back-home{display:flex}
 @media(max-width:520px){.pp-ac{width:100%}.pp-b{flex:1}}
 
 @media print{
+  #cheer{display:none!important}
   @page{size:A4;margin:10mm}
   html,body{background:#fff!important}
   #adminApp,.no-print,#publicSite>.demo-strip,#publicSite footer{display:none!important}
@@ -957,6 +974,7 @@ body.page-papers .back-home{display:flex}
 <!-- ট্রান্সক্রিপ্ট: সার্চের ফলাফল এখানে দেখাবে -->
 <section id="transcriptSection" hidden>
   <div class="container">
+    <div class="cheer" id="cheer" hidden></div>
     <article class="transcript" id="transcript"></article>
     <div class="t-actions no-print">
       <button type="button" class="btn btn-reset" id="btnBackSearch">
@@ -1789,9 +1807,23 @@ function showTranscript(r, year, isSample){
   if(sigUrl){ const im = $('tSignImg'); loadImgChain(im, sigUrl, () => {}, () => { im.hidden = false; }); }
   document.body.classList.add('tmode');
   $('transcriptSection').hidden = false;
+  showCheer(r);
   window.scrollTo({top:0});
 }
+/* ---------- অভিনন্দন বার্তা, ব্যাজ ও কনফেটি ---------- */
+function showCheer(r){
+  const box = $('cheer'), res = String(r.result || '').trim(), nm = esc(r.name || '');
+  const V = {
+    'ট্যালেন্টপুল': { cls:'gold', ic:'🥇', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "ট্যালেন্টপুল" বৃত্তি অর্জন করেছ। তোমার পরিশ্রম ও মেধার জন্য আমরা গর্বিত।', n:130 },
+    'প্রতিভাধর': { cls:'silver', ic:'🥈', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "প্রতিভাধর" হিসেবে স্বীকৃতি পেয়েছ। এই সাফল্য আরও এগিয়ে যাওয়ার শক্তি দিক।', n:90 },
+    'কৃতকার্য': { cls:'green', ic:'🏅', t:'অভিনন্দন, ' + nm + '!', p:'তুমি কৃতকার্য হয়েছ। তোমার প্রচেষ্টার জন্য ধন্যবাদ ও শুভকামনা।', n:55 }
+  };
+  const v = V[res] || { cls:'soft', ic:'🌱', t:'ধন্যবাদ, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 };
+  box.className = 'cheer ' + v.cls; box.hidden = false;
+  box.innerHTML = '<div class="cb" aria-hidden="true">' + v.ic + '</div><div><h3>' + v.t + '</h3><p>' + v.p + '</p></div>';
+}
 function hideTranscript(){
+  $('cheer').hidden = true;
   document.body.classList.remove('tmode');
   $('transcriptSection').hidden = true;
   transcriptSample = false;
