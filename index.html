@@ -652,6 +652,19 @@ body.cloud .demo-strip,body.cloud .notice-demo:not(.warn){display:none!important
 .cheer .cb{flex:0 0 auto;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:2rem;background:radial-gradient(circle at 30% 25%,#fff,var(--gold-100));box-shadow:0 0 0 4px rgba(230,191,85,.55)}
 .cheer.silver .cb{box-shadow:0 0 0 4px rgba(210,220,226,.85)}
 .cheer.green .cb{box-shadow:0 0 0 4px rgba(18,160,127,.6)}
+.cheer.plain{background:linear-gradient(135deg,#0b5a4a,#2f8f78)}
+body.cstage #transcript,body.cstage .t-actions{display:none}
+body.cstage #transcriptSection .container{min-height:62vh;display:flex;flex-direction:column;justify-content:center}
+.cheer .cx{min-width:0}
+.cheer .cres{display:inline-block;margin:2px 0 6px;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-size:.95rem}
+.cheer .cres b{color:var(--gold-400)}
+.cheer .cgo,.cheer .cback{display:none}
+body.cstage .cheer{flex-direction:column;text-align:center;padding:30px 20px 24px;gap:12px;border-radius:26px}
+body.cstage .cheer .cb{width:96px;height:96px;font-size:3rem}
+body.cstage .cheer h3{font-size:clamp(1.3rem,6vw,1.8rem)}
+body.cstage .cheer p{max-width:30em;margin:6px auto 0}
+body.cstage .cheer .cgo{display:inline-flex;align-items:center;gap:8px;margin-top:16px;border:0;cursor:pointer;font:inherit;font-weight:800;font-size:1.08rem;color:#3b2c00;padding:14px 30px;border-radius:99px;background:linear-gradient(135deg,var(--gold-400),var(--gold-500));box-shadow:0 8px 22px -8px rgba(230,191,85,.9)}
+body.cstage .cheer .cback{display:block;margin:12px auto 0;background:none;border:0;color:rgba(255,255,255,.85);font:inherit;cursor:pointer;text-decoration:underline}
 .cheer.soft{background:linear-gradient(135deg,#355f55,#4f7f73);border-color:rgba(255,255,255,.25)}
 .cheer h3{margin:0 0 3px;font-size:clamp(1.05rem,4.6vw,1.35rem);line-height:1.35}
 .cheer p{margin:0;opacity:.93;font-size:.95rem;line-height:1.5}
@@ -1807,23 +1820,30 @@ function showTranscript(r, year, isSample){
   if(sigUrl){ const im = $('tSignImg'); loadImgChain(im, sigUrl, () => {}, () => { im.hidden = false; }); }
   document.body.classList.add('tmode');
   $('transcriptSection').hidden = false;
-  showCheer(r);
+  if(transcriptSample){ document.body.classList.remove('cstage'); $('cheer').hidden = true; }
+  else { document.body.classList.add('cstage'); showCheer(r); }
   window.scrollTo({top:0});
 }
+document.addEventListener('click', e => {
+  if(e.target.closest('#btnShowMark')){ document.body.classList.remove('cstage'); $('cheer').hidden = true; window.scrollTo({ top:0 }); }
+  else if(e.target.closest('#btnCheerBack')) $('btnBackSearch').click();
+});
 /* ---------- অভিনন্দন বার্তা, ব্যাজ ও কনফেটি ---------- */
 function showCheer(r){
   const box = $('cheer'), res = String(r.result || '').trim(), nm = esc(r.name || '');
   const V = {
     'ট্যালেন্টপুল': { cls:'gold', ic:'🥇', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "ট্যালেন্টপুল" বৃত্তি অর্জন করেছ। তোমার পরিশ্রম ও মেধার জন্য আমরা গর্বিত।', n:130 },
     'প্রতিভাধর': { cls:'silver', ic:'🥈', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "প্রতিভাধর" হিসেবে স্বীকৃতি পেয়েছ। এই সাফল্য আরও এগিয়ে যাওয়ার শক্তি দিক।', n:90 },
-    'কৃতকার্য': { cls:'green', ic:'🏅', t:'অভিনন্দন, ' + nm + '!', p:'তুমি কৃতকার্য হয়েছ। তোমার প্রচেষ্টার জন্য ধন্যবাদ ও শুভকামনা।', n:55 }
+    'কৃতকার্য': { cls:'green', ic:'🏅', t:'অভিনন্দন, ' + nm + '!', p:'তুমি পরীক্ষায় কৃতকার্য হয়েছ। এবার মেধা তালিকায় আসা হয়নি, তবে তোমার চেষ্টা প্রশংসনীয়। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 },
+    'সাধারণ': { cls:'plain', ic:'🌟', t:'অভিনন্দন, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 },
   };
   const v = V[res] || { cls:'soft', ic:'🌱', t:'ধন্যবাদ, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 };
   box.className = 'cheer ' + v.cls; box.hidden = false;
-  box.innerHTML = '<div class="cb" aria-hidden="true">' + v.ic + '</div><div><h3>' + v.t + '</h3><p>' + v.p + '</p></div>';
+  box.innerHTML = '<div class="cb" aria-hidden="true">' + v.ic + '</div><div class="cx"><h3>' + v.t + '</h3>' + (res ? '<div class="cres">ফলাফল: <b>' + esc(res) + '</b></div>' : '') + '<p>' + v.p + '</p>'
+    + '<button type="button" class="cgo" id="btnShowMark">মার্কশিট দেখুন <span aria-hidden="true">→</span></button><button type="button" class="cback" id="btnCheerBack">← পুনরায় অনুসন্ধান</button></div>';
 }
 function hideTranscript(){
-  $('cheer').hidden = true;
+  $('cheer').hidden = true; document.body.classList.remove('cstage');
   document.body.classList.remove('tmode');
   $('transcriptSection').hidden = true;
   transcriptSample = false;
