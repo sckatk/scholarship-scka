@@ -656,7 +656,16 @@ body.cloud .demo-strip,body.cloud .notice-demo:not(.warn){display:none!important
 body.cstage #transcript,body.cstage .t-actions{display:none}
 body.cstage #transcriptSection .container{min-height:62vh;display:flex;flex-direction:column;justify-content:center}
 .cheer .cx{min-width:0}
+.cheer .cb{position:relative}
+.cheer .cb .cph{display:none}
+.cheer .cb.hasph{font-size:0;overflow:visible}
+.cheer .cb.hasph .cph{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cheer .cb.hasph .cmed{position:absolute;right:-6px;bottom:-4px;width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.3rem;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+body.cstage .cheer .cb.hasph{width:120px;height:120px}
+body.cstage .cheer .cb.hasph .cmed{width:42px;height:42px;font-size:1.6rem}
 .cheer .cres{display:inline-block;margin:2px 0 6px;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-size:.95rem}
+.cheer.bronze .cb{box-shadow:0 0 0 4px rgba(205,127,50,.8)}
+.cheer.bronze{background:linear-gradient(135deg,var(--emerald-900),#0f7a64)}
 .cheer .cres b{color:var(--gold-400)}
 .cheer .cgo,.cheer .cback{display:none}
 body.cstage .cheer{flex-direction:column;text-align:center;padding:30px 20px 24px;gap:12px;border-radius:26px}
@@ -1531,7 +1540,7 @@ const Store = (() => {
       records.forEach(r => {
         const k = r.roll + '|' + r.reg;
         const ex = db.results[label][k];
-        if(ex){ updated++; if(ex.result && !r.result) r.result = ex.result; } else added++;
+        if(ex){ updated++; if(ex.result && !r.result) r.result = ex.result; if(ex.photo && !r.photo) r.photo = ex.photo; } else added++;
         db.results[label][k] = r;
       });
       return { ok: save(), added, updated };
@@ -1833,14 +1842,16 @@ function showCheer(r){
   const box = $('cheer'), res = String(r.result || '').trim(), nm = esc(r.name || '');
   const V = {
     'ট্যালেন্টপুল': { cls:'gold', ic:'🥇', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "ট্যালেন্টপুল" বৃত্তি অর্জন করেছ। তোমার পরিশ্রম ও মেধার জন্য আমরা গর্বিত।', n:130 },
-    'প্রতিভাধর': { cls:'silver', ic:'🥈', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "প্রতিভাধর" হিসেবে স্বীকৃতি পেয়েছ। এই সাফল্য আরও এগিয়ে যাওয়ার শক্তি দিক।', n:90 },
+    'প্রতিভাধর': { cls:'bronze', ic:'🥉', t:'অভিনন্দন, ' + nm + '! 🎉', p:'তুমি "প্রতিভাধর" হিসেবে স্বীকৃতি পেয়েছ। এই সাফল্য আরও এগিয়ে যাওয়ার শক্তি দিক।', n:90 },
     'কৃতকার্য': { cls:'green', ic:'🏅', t:'অভিনন্দন, ' + nm + '!', p:'তুমি পরীক্ষায় কৃতকার্য হয়েছ। এবার মেধা তালিকায় আসা হয়নি, তবে তোমার চেষ্টা প্রশংসনীয়। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 },
-    'সাধারণ': { cls:'plain', ic:'🌟', t:'অভিনন্দন, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 },
+    'সাধারণ': { cls:'silver', ic:'🥈', t:'অভিনন্দন, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 },
   };
   const v = V[res] || { cls:'soft', ic:'🌱', t:'ধন্যবাদ, ' + nm + '!', p:'পরীক্ষায় অংশ নেওয়ার জন্য ধন্যবাদ। চেষ্টা চালিয়ে যাও, সামনে আরও সুযোগ আছে।', n:0 };
   box.className = 'cheer ' + v.cls; box.hidden = false;
-  box.innerHTML = '<div class="cb" aria-hidden="true">' + v.ic + '</div><div class="cx"><h3>' + v.t + '</h3>' + (res ? '<div class="cres">ফলাফল: <b>' + esc(res) + '</b></div>' : '') + '<p>' + v.p + '</p>'
+  const ph = String(r.photo || '').trim();
+  box.innerHTML = '<div class="cb"><img class="cph" alt="" hidden><span class="cmed" aria-hidden="true">' + v.ic + '</span></div><div class="cx"><h3>' + v.t + '</h3>' + (res ? '<div class="cres">ফলাফল: <b>' + esc(res) + '</b>' + '</div>' : '') + '<p>' + v.p + '</p>'
     + '<button type="button" class="cgo" id="btnShowMark">মার্কশিট দেখুন <span aria-hidden="true">→</span></button><button type="button" class="cback" id="btnCheerBack">← পুনরায় অনুসন্ধান</button></div>';
+  if(ph){ const im = box.querySelector('.cph'); loadImgChain(im, ph, () => {}, () => { im.hidden = false; box.querySelector('.cb').classList.add('hasph'); }); }
 }
 function hideTranscript(){
   $('cheer').hidden = true; document.body.classList.remove('cstage');
@@ -2094,7 +2105,8 @@ const FIELD_ALIASES = {
   mother:['মাতারনাম','মাতা','mother','mothername'],
   cls:['শ্রেণি','শ্রেণী','class'],
   dob:['জন্মতারিখ','dob','dateofbirth','birthdate'],
-  institution:['প্রতিষ্ঠান','প্রতিষ্ঠানেরনাম','institution','institute','school']
+  institution:['প্রতিষ্ঠান','প্রতিষ্ঠানেরনাম','institution','institute','school'],
+  photo:['ছবি','ছবিরলিংক','ছবিলিংক','photo','photolink','image','picture']
 };
 Object.keys(FIELD_ALIASES).forEach(k => FIELD_ALIASES[k] = FIELD_ALIASES[k].map(nk));
 const SUB_RE = [/^বিষয়(\d+)(কোড|নাম|পূর্ণমান|মোটনম্বর|প্রাপ্তনম্বর|অর্জিতনম্বর|প্রাপ্ত|অর্জিত|গ্রেড)$/, /^sub(?:ject)?(\d+)(code|name|full|total|got|obtained|marks|grade)$/];
@@ -2143,7 +2155,7 @@ function parseTable(table){
     if(serr.length){ errors.push('সারি ' + toBn(i + 1) + ': ' + serr.join('; ')); continue; }
     if(!raw.length){ errors.push('সারি ' + toBn(i + 1) + ': কোনো বিষয়ের নম্বর নেই'); continue; }
     const rec = { roll, reg, name, father:g('father'), mother:g('mother'), cls:g('cls'), dob:dobP.text,
-                  institution:g('institution'), raw };
+                  institution:g('institution'), photo:g('photo'), raw };
     const key = roll + '|' + reg;
     if(seen.has(key)){ dup++; records[seen.get(key)] = rec; }
     else { seen.set(key, records.length); records.push(rec); }
@@ -2771,7 +2783,7 @@ function openEdit(key){
   $('edTitle').textContent = y + ' — ফলাফল সম্পাদনা';
   $('edBody').innerHTML = `<div class="ed-grid">
       ${f('edRoll', 'রোল', r.roll)}${f('edReg', 'রেজিস্ট্রেশন নং', r.reg)}${f('edName', 'নাম', r.name)}${f('edCls', 'শ্রেণি', r.cls)}
-      <div><label class="fl" for="edRes">ফলাফল</label>${resSel(r.result, '', 'edRes')}</div>${f('edFather', 'পিতার নাম', r.father)}${f('edMother', 'মাতার নাম', r.mother)}${f('edDob', 'জন্ম তারিখ', r.dob, 'placeholder="যেকোনো ফরমেট, যেমন ১২/০৫/২০১০"')}${f('edInst', 'প্রতিষ্ঠান', r.institution)}
+      <div><label class="fl" for="edRes">ফলাফল</label>${resSel(r.result, '', 'edRes')}</div>${f('edFather', 'পিতার নাম', r.father)}${f('edMother', 'মাতার নাম', r.mother)}${f('edDob', 'জন্ম তারিখ', r.dob, 'placeholder="যেকোনো ফরমেট, যেমন ১২/০৫/২০১০"')}${f('edInst', 'প্রতিষ্ঠান', r.institution)}${f('edPhoto', 'ছবির লিংক (ঐচ্ছিক, ড্রাইভ বা সরাসরি লিংক)', r.photo || '', 'placeholder="https://…"')}
     </div>
     <div class="ed-subh">বিষয়সমূহ — কোড | নাম | পূর্ণমান | প্রাপ্ত নম্বর (গ্রেড, মোট, জিপিএ, ফলাফল নিজে হিসাব হবে)</div>
     ${(r.subjects || []).map(x => `<div class="ed-sub"><input class="a-in" data-sk="code" value="${esc(x.code)}" aria-label="কোড"><input class="a-in" data-sk="name" value="${esc(x.name)}" aria-label="নাম"><input class="a-in" data-sk="full" inputmode="decimal" value="${esc(x.full)}" aria-label="পূর্ণমান"><input class="a-in" data-sk="got" inputmode="decimal" value="${esc(x.got)}" aria-label="প্রাপ্ত নম্বর"></div>`).join('') || '<p class="hint">এই ফলাফলে কোনো বিষয় নেই।</p>'}`;
@@ -2792,7 +2804,7 @@ function saveEdit(){
     raw.push({ code:v('code'), name:v('name'), full, got });
   });
   if(bad) return er('প্রতিটি বিষয়ে পূর্ণমান ০-এর বেশি এবং প্রাপ্ত নম্বর ০ থেকে পূর্ণমানের মধ্যে হতে হবে।');
-  const rec = Object.assign({}, old, { roll, reg, name, cls:g('edCls'), father:g('edFather'), mother:g('edMother'), dob:dobP.text, institution:g('edInst'), result:$('edRes').value });
+  const rec = Object.assign({}, old, { roll, reg, name, cls:g('edCls'), father:g('edFather'), mother:g('edMother'), dob:dobP.text, institution:g('edInst'), photo:g('edPhoto'), result:$('edRes').value });
   if(raw.length){ const cr = computeResult(raw, Store.gradingFor(edCtx.y)); rec.subjects = cr.subjects; rec.total = cr.total; rec.gpa = cr.gpa; }
   const res = Store.updateRecord(edCtx.y, edCtx.key, rec);
   if(res === 'dup') return er('এই রোল ও রেজিস্ট্রেশন নম্বরের আরেকজন পরীক্ষার্থী ইতিমধ্যে আছে।');
