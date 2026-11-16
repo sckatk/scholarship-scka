@@ -658,11 +658,16 @@ body.cstage #transcriptSection .container{min-height:62vh;display:flex;flex-dire
 .cheer .cx{min-width:0}
 .cheer .cb{position:relative}
 .cheer .cb .cph{display:none}
-.cheer .cb.hasph{font-size:0;overflow:visible}
-.cheer .cb.hasph .cph{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
-.cheer .cb.hasph .cmed{position:absolute;right:-6px;bottom:-4px;width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.3rem;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-body.cstage .cheer .cb.hasph{width:120px;height:120px}
-body.cstage .cheer .cb.hasph .cmed{width:42px;height:42px;font-size:1.6rem}
+.cheer .cb.hasph{display:block;flex:0 0 auto;width:88px;height:88px;padding:4px;font-size:0;overflow:visible;border-radius:50%;
+  background:conic-gradient(from 210deg,#f4d77a,#c9971c,#fff3c4,#c9971c,#f4d77a);
+  box-shadow:0 0 0 7px rgba(230,191,85,.2),0 0 30px 4px rgba(230,191,85,.28),0 14px 28px -8px rgba(0,0,0,.55)}
+.cheer .cb.hasph .cph{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:center 22%;border:3px solid #fff;box-sizing:border-box;background:#e9f2ee}
+.cheer.silver .cb.hasph{background:conic-gradient(from 210deg,#eef3f6,#8d9aa3,#fff,#8d9aa3,#eef3f6);box-shadow:0 0 0 7px rgba(210,220,226,.22),0 0 30px 4px rgba(210,220,226,.25),0 14px 28px -8px rgba(0,0,0,.55)}
+.cheer.bronze .cb.hasph{background:conic-gradient(from 210deg,#f0b27a,#a8642a,#ffd9b0,#a8642a,#f0b27a);box-shadow:0 0 0 7px rgba(205,127,50,.22),0 0 30px 4px rgba(205,127,50,.25),0 14px 28px -8px rgba(0,0,0,.55)}
+.cheer.green .cb.hasph{background:conic-gradient(from 210deg,#8ee6c8,#0a7a64,#d6fff0,#0a7a64,#8ee6c8);box-shadow:0 0 0 7px rgba(18,160,127,.25),0 14px 28px -8px rgba(0,0,0,.55)}
+.cheer .cb.hasph .cmed{position:absolute;right:-8px;bottom:-6px;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,var(--gold-100));display:grid;place-items:center;font-size:1.35rem;box-shadow:0 0 0 3px var(--gold-400),0 4px 10px rgba(0,0,0,.35)}
+body.cstage .cheer .cb.hasph{width:148px;height:148px;padding:5px;margin:4px auto 10px}
+body.cstage .cheer .cb.hasph .cmed{width:46px;height:46px;font-size:1.75rem;right:-6px;bottom:-4px}
 .cheer .cres{display:inline-block;margin:2px 0 6px;padding:4px 14px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);font-size:.95rem}
 .cheer.bronze .cb{box-shadow:0 0 0 4px rgba(205,127,50,.8)}
 .cheer.bronze{background:linear-gradient(135deg,var(--emerald-900),#0f7a64)}
