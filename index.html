@@ -1848,10 +1848,10 @@ document.addEventListener('click', e => {
 /* ---------- শেয়ার কার্ড (ছবি হিসেবে ডাউনলোড/শেয়ার) ---------- */
 let cheerYear = '';
 const CARD_TONE = {
-  'ট্যালেন্টপুল': { a:'#f4d77a', b:'#c9971c', c:'#fff3c4', ic:'🥇' },
-  'সাধারণ': { a:'#eef3f6', b:'#8d9aa3', c:'#ffffff', ic:'🥈' },
-  'প্রতিভাধর': { a:'#f0b27a', b:'#a8642a', c:'#ffd9b0', ic:'🥉' },
-  'কৃতকার্য': { a:'#8ee6c8', b:'#0a9a7c', c:'#d6fff0', ic:'🏅' }
+  'ট্যালেন্টপুল': { a:'#f6e3a1', b:'#c8a24a', c:'#fff6d8', ic:'🥇' },
+  'সাধারণ': { a:'#e9eef2', b:'#9aa8b2', c:'#ffffff', ic:'🥈' },
+  'প্রতিভাধর': { a:'#f2c29a', b:'#b5733a', c:'#ffe3c8', ic:'🥉' },
+  'কৃতকার্য': { a:'#9fe8cf', b:'#2aa583', c:'#e0fff4', ic:'🏅' }
 };
 function loadCardImg(url){
   return new Promise(res => {
@@ -1871,61 +1871,71 @@ function cardWrap(ctx, text, max){
 async function buildCard(r, year){
   const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d'), res = String(r.result || '').trim();
-  const T = CARD_TONE[res] || { a:'#f4d77a', b:'#c9971c', c:'#fff3c4', ic:'🌟' };
+  const T = CARD_TONE[res] || { a:'#f6e3a1', b:'#c8a24a', c:'#fff6d8', ic:'🌟' };
   const BODY = "'Hind Siliguri','Noto Sans Bengali',sans-serif", HEAD = "'Noto Serif Bengali','Hind Siliguri',serif";
   try{ await Promise.all([document.fonts.load("700 40px 'Hind Siliguri'", 'অভিনন্দন'), document.fonts.load("800 40px 'Noto Serif Bengali'", 'অভিনন্দন'), document.fonts.load("500 30px 'Hind Siliguri'", 'অভিনন্দন')]); }catch(e){}
   const photo = r.photo ? await loadCardImg(r.photo) : null;
-  // পটভূমি
-  let g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#022f27'); g.addColorStop(.55, '#055a49'); g.addColorStop(1, '#0a7a64'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  g = ctx.createRadialGradient(W * .5, 520, 40, W * .5, 520, 620); g.addColorStop(0, 'rgba(244,215,122,.38)'); g.addColorStop(1, 'rgba(244,215,122,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  ctx.save(); ctx.globalAlpha = .07; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-  for(let i = 0; i < 9; i++){ ctx.beginPath(); ctx.arc(W * .5, 520, 150 + i * 70, 0, 7); ctx.stroke(); } ctx.restore();
-  ctx.save(); ctx.globalAlpha = .18; ctx.fillStyle = '#fff';
-  [[110,170,5],[960,230,4],[890,120,6],[170,420,4],[950,480,5],[120,760,4],[980,800,6],[200,1010,5],[900,1040,4]].forEach(([x, y, s]) => { ctx.beginPath(); for(let k = 0; k < 8; k++){ const a = k * Math.PI / 4, rr = k % 2 ? s : s * 3; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); }); ctx.restore();
-  // সোনালি ফ্রেম
-  const frame = (inset, w, a) => { ctx.strokeStyle = a; ctx.lineWidth = w; ctx.beginPath(); ctx.roundRect(inset, inset, W - inset * 2, H - inset * 2, 36); ctx.stroke(); };
+  const IVORY = '#fffaf0', SOFT = 'rgba(255,250,240,.78)';
+  // পটভূমি: গভীর পান্না, শান্ত আলো
+  let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#031c17'); g.addColorStop(.5, '#06382d'); g.addColorStop(1, '#042a22'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createRadialGradient(W / 2, 540, 30, W / 2, 540, 560); g.addColorStop(0, 'rgba(255,240,190,.20)'); g.addColorStop(.55, 'rgba(255,240,190,.05)'); g.addColorStop(1, 'rgba(255,240,190,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createRadialGradient(W / 2, H + 80, 50, W / 2, H + 80, 700); g.addColorStop(0, 'rgba(18,160,127,.30)'); g.addColorStop(1, 'rgba(18,160,127,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // সূক্ষ্ম সোনালি বৃত্ত-রেখা
+  ctx.save(); ctx.strokeStyle = T.a; ctx.lineWidth = 1.5;
+  [[300, .13], [380, .09], [460, .06], [540, .04]].forEach(([rr, a]) => { ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(W / 2, 540, rr, 0, 7); ctx.stroke(); }); ctx.restore();
+  // ফ্রেম
   const fg = ctx.createLinearGradient(0, 0, W, H); fg.addColorStop(0, T.a); fg.addColorStop(.5, T.b); fg.addColorStop(1, T.c);
-  frame(26, 6, fg); frame(44, 2, 'rgba(244,215,122,.55)');
+  const frame = (inset, w, a, rad) => { ctx.strokeStyle = a; ctx.lineWidth = w; ctx.beginPath(); ctx.roundRect(inset, inset, W - inset * 2, H - inset * 2, rad); ctx.stroke(); };
+  frame(28, 5, fg, 34); frame(46, 1.5, 'rgba(246,227,161,.45)', 24);
+  // কোণার অলংকার
+  ctx.save(); ctx.fillStyle = fg; [[64, 64], [W - 64, 64], [64, H - 64], [W - 64, H - 64]].forEach(([x, y]) => { ctx.beginPath(); for(let k = 0; k < 8; k++){ const a = k * Math.PI / 4, rr = k % 2 ? 4 : 13; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); }); ctx.restore();
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-  // শীর্ষ: লোগো + সংগঠন
-  const logo = document.querySelector('.banner .logo');
-  let y = 92;
-  if(logo && logo.naturalWidth){ ctx.save(); ctx.beginPath(); ctx.arc(W / 2, y + 44, 48, 0, 7); ctx.clip(); ctx.fillStyle = '#fff'; ctx.fillRect(W / 2 - 48, y - 4, 96, 96); ctx.drawImage(logo, W / 2 - 48, y - 4, 96, 96); ctx.restore(); ctx.strokeStyle = fg; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W / 2, y + 44, 50, 0, 7); ctx.stroke(); }
-  ctx.fillStyle = '#fff'; ctx.font = '800 38px ' + HEAD; ctx.fillText('স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন', W / 2, 235);
+  // শীর্ষ
+  const logo = document.querySelector('.banner .logo'), ly = 96;
+  if(logo && logo.naturalWidth){ ctx.save(); ctx.beginPath(); ctx.arc(W / 2, ly + 44, 46, 0, 7); ctx.clip(); ctx.fillStyle = '#fff'; ctx.fillRect(W / 2 - 46, ly - 2, 92, 92); ctx.drawImage(logo, W / 2 - 46, ly - 2, 92, 92); ctx.restore(); ctx.strokeStyle = fg; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W / 2, ly + 44, 49, 0, 7); ctx.stroke(); }
+  ctx.fillStyle = IVORY; ctx.font = '800 38px ' + HEAD; ctx.fillText('স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন', W / 2, 238);
   const exam = (TRANSCRIPT_CFG.examName || 'বৃত্তি পরীক্ষা') + '-' + toBn(year);
-  cardFit(ctx, exam, 880, 32, 22, s => '600 ' + s + 'px ' + BODY); ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillText(exam, W / 2, 284);
-  // ছবি / পদক বৃত্ত
-  const cx = W / 2, cy = 560, R = 190;
-  ctx.save(); ctx.shadowColor = 'rgba(244,215,122,.55)'; ctx.shadowBlur = 60; ctx.beginPath(); ctx.arc(cx, cy, R + 14, 0, 7); ctx.fillStyle = T.b; ctx.fill(); ctx.restore();
-  const ring = ctx.createConicGradient ? ctx.createConicGradient(-1, cx, cy) : fg;
-  if(ctx.createConicGradient){ ring.addColorStop(0, T.a); ring.addColorStop(.3, T.b); ring.addColorStop(.5, T.c); ring.addColorStop(.75, T.b); ring.addColorStop(1, T.a); }
-  ctx.beginPath(); ctx.arc(cx, cy, R + 14, 0, 7); ctx.fillStyle = ring; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx, cy, R + 2, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
-  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R - 6, 0, 7); ctx.clip();
-  if(photo){ const sc = Math.max((R * 2) / photo.width, (R * 2) / photo.height), w = photo.width * sc, h = photo.height * sc; ctx.drawImage(photo, cx - w / 2, cy - R + 6 - (h - R * 2) * .18, w, h); }
-  else { const pg = ctx.createRadialGradient(cx - 40, cy - 60, 20, cx, cy, R); pg.addColorStop(0, '#fff'); pg.addColorStop(1, '#fbf1cf'); ctx.fillStyle = pg; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.font = '230px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, cx, cy + 10); ctx.textBaseline = 'alphabetic'; }
+  cardFit(ctx, exam, 860, 30, 22, s => '600 ' + s + 'px ' + BODY); ctx.fillStyle = T.a; ctx.fillText(exam, W / 2, 284);
+  ctx.strokeStyle = 'rgba(246,227,161,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(W / 2 - 120, 306); ctx.lineTo(W / 2 + 120, 306); ctx.stroke();
+  // ছবি / পদক
+  const cx = W / 2, cy = 548, R = 178;
+  ctx.save(); ctx.shadowColor = 'rgba(246,227,161,.45)'; ctx.shadowBlur = 50; ctx.beginPath(); ctx.arc(cx, cy, R + 16, 0, 7); ctx.fillStyle = T.b; ctx.fill(); ctx.restore();
+  let ring = fg;
+  if(ctx.createConicGradient){ ring = ctx.createConicGradient(-1, cx, cy); ring.addColorStop(0, T.a); ring.addColorStop(.3, T.b); ring.addColorStop(.5, T.c); ring.addColorStop(.75, T.b); ring.addColorStop(1, T.a); }
+  ctx.beginPath(); ctx.arc(cx, cy, R + 16, 0, 7); ctx.fillStyle = ring; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R + 3, 0, 7); ctx.fillStyle = '#04241d'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R - 3, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R - 9, 0, 7); ctx.clip();
+  if(photo){ const sc = Math.max((R * 2) / photo.width, (R * 2) / photo.height), w = photo.width * sc, h = photo.height * sc; ctx.drawImage(photo, cx - w / 2, cy - R + 9 - (h - R * 2) * .18, w, h); }
+  else { const pg = ctx.createRadialGradient(cx - 40, cy - 60, 20, cx, cy, R); pg.addColorStop(0, '#ffffff'); pg.addColorStop(1, '#f6ecd0'); ctx.fillStyle = pg; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.font = '220px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, cx, cy + 10); ctx.textBaseline = 'alphabetic'; }
   ctx.restore();
-  if(photo){ const bx = cx + R * .72, by = cy + R * .72; ctx.beginPath(); ctx.arc(bx, by, 58, 0, 7); ctx.fillStyle = fg; ctx.fill(); ctx.beginPath(); ctx.arc(bx, by, 51, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.font = '66px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, bx, by + 4); ctx.textBaseline = 'alphabetic'; }
-  // অভিনন্দন
-  ctx.fillStyle = fg; ctx.font = '800 76px ' + HEAD; ctx.fillText('অভিনন্দন!', W / 2, 872);
-  // নাম
-  ctx.fillStyle = '#fff'; const nm = String(r.name || '');
-  cardFit(ctx, nm, 900, 72, 44, s => '700 ' + s + 'px ' + HEAD); let nlines = [nm];
+  if(photo){ const bx = cx + R * .74, by = cy + R * .74; ctx.beginPath(); ctx.arc(bx, by, 58, 0, 7); ctx.fillStyle = fg; ctx.fill(); ctx.beginPath(); ctx.arc(bx, by, 50, 0, 7); ctx.fillStyle = '#fffaf0'; ctx.fill(); ctx.font = '64px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, bx, by + 4); ctx.textBaseline = 'alphabetic'; }
+  // অভিনন্দন + নাম
+  const tg = ctx.createLinearGradient(W / 2 - 220, 0, W / 2 + 220, 0); tg.addColorStop(0, T.a); tg.addColorStop(.5, T.c); tg.addColorStop(1, T.a);
+  ctx.fillStyle = tg; ctx.font = '800 72px ' + HEAD; ctx.fillText('অভিনন্দন!', W / 2, 858);
+  const nm = String(r.name || ''); ctx.fillStyle = IVORY;
+  cardFit(ctx, nm, 900, 70, 44, s => '700 ' + s + 'px ' + HEAD); let nlines = [nm];
   if(ctx.measureText(nm).width > 900){ ctx.font = '700 48px ' + HEAD; nlines = cardWrap(ctx, nm, 900).slice(0, 2); }
-  nlines.forEach((ln, i) => ctx.fillText(ln, W / 2, 962 + i * 62));
-  const ny = 962 + (nlines.length - 1) * 62;
+  nlines.forEach((ln, i) => ctx.fillText(ln, W / 2, 946 + i * 60));
+  let cur = 946 + (nlines.length - 1) * 60;
   // ফলাফল পিল
   if(res){
-    ctx.font = '700 46px ' + BODY; const tw = ctx.measureText(res).width, pw = tw + 150, py = ny + 40, ph = 84;
-    ctx.beginPath(); ctx.roundRect(W / 2 - pw / 2, py, pw, ph, 42); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = fg; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = '46px sans-serif'; ctx.fillText(T.ic, W / 2 - pw / 2 + 28, py + 58);
-    ctx.font = '700 46px ' + BODY; ctx.fillStyle = T.a; ctx.fillText(res, W / 2 - pw / 2 + 92, py + 58); ctx.textAlign = 'center';
+    ctx.font = '700 44px ' + BODY; const tw = ctx.measureText(res).width, pw = tw + 140, py = cur + 34, ph = 78;
+    const pgrad = ctx.createLinearGradient(0, py, 0, py + ph); pgrad.addColorStop(0, 'rgba(255,250,240,.16)'); pgrad.addColorStop(1, 'rgba(255,250,240,.05)');
+    ctx.beginPath(); ctx.roundRect(W / 2 - pw / 2, py, pw, ph, 39); ctx.fillStyle = pgrad; ctx.fill(); ctx.strokeStyle = fg; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.textAlign = 'left'; ctx.fillStyle = '#000'; ctx.font = '42px sans-serif'; ctx.fillText(T.ic, W / 2 - pw / 2 + 26, py + 54);
+    ctx.font = '700 44px ' + BODY; ctx.fillStyle = T.a; ctx.fillText(res, W / 2 - pw / 2 + 86, py + 54); ctx.textAlign = 'center';
+    cur = py + ph;
   }
-  // নিচের লেখা
-  ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = '500 32px ' + BODY;
-  ctx.fillText('পরিশ্রম ও মেধার জন্য আমরা গর্বিত', W / 2, 1218);
-  ctx.strokeStyle = 'rgba(244,215,122,.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2 - 140, 1248); ctx.lineTo(W / 2 + 140, 1248); ctx.stroke();
-  ctx.fillStyle = T.a; ctx.font = '600 28px ' + BODY; ctx.fillText((location.host || 'ফলাফল') + ' — ফলাফল দেখুন', W / 2, 1292);
+  // শ্রেণি ও প্রতিষ্ঠান
+  const cls = String(r.cls || '').trim(), inst = String(r.institution || '').trim();
+  if(cls || inst){
+    cur += 34; ctx.strokeStyle = 'rgba(246,227,161,.4)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(W / 2 - 90, cur); ctx.lineTo(W / 2 + 90, cur); ctx.stroke(); cur += 18;
+    if(cls){ cur += 36; ctx.fillStyle = SOFT; ctx.font = '500 32px ' + BODY; ctx.fillText('শ্রেণি: ' + cls, W / 2, cur); }
+    if(inst){ ctx.fillStyle = IVORY; ctx.font = '600 36px ' + BODY; cardWrap(ctx, inst, 860).slice(0, 2).forEach(ln => { cur += 46; ctx.fillText(ln, W / 2, cur); }); }
+  }
+  // শুভকামনা (জায়গা থাকলে)
+  if(cur < 1230){ ctx.fillStyle = T.a; ctx.font = '500 29px ' + BODY; ctx.globalAlpha = .9; ctx.fillText('✦  পরিশ্রম ও মেধার জন্য আমরা গর্বিত  ✦', W / 2, 1282); ctx.globalAlpha = 1; }
   return cv;
 }
 async function cardAction(mode){
