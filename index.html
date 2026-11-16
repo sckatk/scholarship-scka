@@ -672,12 +672,15 @@ body.cstage .cheer .cb.hasph .cmed{width:46px;height:46px;font-size:1.75rem;righ
 .cheer.bronze .cb{box-shadow:0 0 0 4px rgba(205,127,50,.8)}
 .cheer.bronze{background:linear-gradient(135deg,var(--emerald-900),#0f7a64)}
 .cheer .cres b{color:var(--gold-400)}
-.cheer .cgo,.cheer .cback{display:none}
+.cheer .cgo,.cheer .cback,.cheer .csr{display:none}
 body.cstage .cheer{flex-direction:column;text-align:center;padding:30px 20px 24px;gap:12px;border-radius:26px}
 body.cstage .cheer .cb{width:96px;height:96px;font-size:3rem}
 body.cstage .cheer h3{font-size:clamp(1.3rem,6vw,1.8rem)}
 body.cstage .cheer p{max-width:30em;margin:6px auto 0}
 body.cstage .cheer .cgo{display:inline-flex;align-items:center;gap:8px;margin-top:16px;border:0;cursor:pointer;font:inherit;font-weight:800;font-size:1.08rem;color:#3b2c00;padding:14px 30px;border-radius:99px;background:linear-gradient(135deg,var(--gold-400),var(--gold-500));box-shadow:0 8px 22px -8px rgba(230,191,85,.9)}
+body.cstage .cheer .csr{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+body.cstage .cheer .csh{cursor:pointer;font:inherit;font-weight:700;font-size:.95rem;color:#fff;padding:10px 16px;border-radius:99px;background:rgba(255,255,255,.12);border:1.5px solid rgba(230,191,85,.7)}
+body.cstage .cheer .csh:disabled{opacity:.6}
 body.cstage .cheer .cback{display:block;margin:12px auto 0;background:none;border:0;color:rgba(255,255,255,.85);font:inherit;cursor:pointer;text-decoration:underline}
 .cheer.soft{background:linear-gradient(135deg,#355f55,#4f7f73);border-color:rgba(255,255,255,.25)}
 .cheer h3{margin:0 0 3px;font-size:clamp(1.05rem,4.6vw,1.35rem);line-height:1.35}
@@ -1835,13 +1838,116 @@ function showTranscript(r, year, isSample){
   document.body.classList.add('tmode');
   $('transcriptSection').hidden = false;
   if(transcriptSample){ document.body.classList.remove('cstage'); $('cheer').hidden = true; }
-  else { document.body.classList.add('cstage'); showCheer(r); }
+  else { document.body.classList.add('cstage'); cheerYear = year; cheerCtx = r; showCheer(r); }
   window.scrollTo({top:0});
 }
 document.addEventListener('click', e => {
   if(e.target.closest('#btnShowMark')){ document.body.classList.remove('cstage'); $('cheer').hidden = true; window.scrollTo({ top:0 }); }
   else if(e.target.closest('#btnCheerBack')) $('btnBackSearch').click();
 });
+/* ---------- শেয়ার কার্ড (ছবি হিসেবে ডাউনলোড/শেয়ার) ---------- */
+let cheerYear = '';
+const CARD_TONE = {
+  'ট্যালেন্টপুল': { a:'#f4d77a', b:'#c9971c', c:'#fff3c4', ic:'🥇' },
+  'সাধারণ': { a:'#eef3f6', b:'#8d9aa3', c:'#ffffff', ic:'🥈' },
+  'প্রতিভাধর': { a:'#f0b27a', b:'#a8642a', c:'#ffd9b0', ic:'🥉' },
+  'কৃতকার্য': { a:'#8ee6c8', b:'#0a9a7c', c:'#d6fff0', ic:'🏅' }
+};
+function loadCardImg(url){
+  return new Promise(res => {
+    const cands = imgCandidates(url); let i = 0;
+    const next = () => { if(i >= cands.length) return res(null); const im = new Image(); im.crossOrigin = 'anonymous'; im.referrerPolicy = 'no-referrer'; im.onload = () => res(im); im.onerror = next; im.src = cands[i++]; };
+    next(); setTimeout(() => res(null), 8000);
+  });
+}
+function cardFit(ctx, text, max, size, min, font){
+  let s = size; do{ ctx.font = font(s); if(ctx.measureText(text).width <= max) break; s -= 2; }while(s > min); return s;
+}
+function cardWrap(ctx, text, max){
+  const words = String(text).split(/\s+/), lines = []; let cur = '';
+  words.forEach(w => { const t = cur ? cur + ' ' + w : w; if(ctx.measureText(t).width > max && cur){ lines.push(cur); cur = w; } else cur = t; });
+  if(cur) lines.push(cur); return lines;
+}
+async function buildCard(r, year){
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d'), res = String(r.result || '').trim();
+  const T = CARD_TONE[res] || { a:'#f4d77a', b:'#c9971c', c:'#fff3c4', ic:'🌟' };
+  const BODY = "'Hind Siliguri','Noto Sans Bengali',sans-serif", HEAD = "'Noto Serif Bengali','Hind Siliguri',serif";
+  try{ await Promise.all([document.fonts.load("700 40px 'Hind Siliguri'", 'অভিনন্দন'), document.fonts.load("800 40px 'Noto Serif Bengali'", 'অভিনন্দন'), document.fonts.load("500 30px 'Hind Siliguri'", 'অভিনন্দন')]); }catch(e){}
+  const photo = r.photo ? await loadCardImg(r.photo) : null;
+  // পটভূমি
+  let g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#022f27'); g.addColorStop(.55, '#055a49'); g.addColorStop(1, '#0a7a64'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createRadialGradient(W * .5, 520, 40, W * .5, 520, 620); g.addColorStop(0, 'rgba(244,215,122,.38)'); g.addColorStop(1, 'rgba(244,215,122,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.globalAlpha = .07; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+  for(let i = 0; i < 9; i++){ ctx.beginPath(); ctx.arc(W * .5, 520, 150 + i * 70, 0, 7); ctx.stroke(); } ctx.restore();
+  ctx.save(); ctx.globalAlpha = .18; ctx.fillStyle = '#fff';
+  [[110,170,5],[960,230,4],[890,120,6],[170,420,4],[950,480,5],[120,760,4],[980,800,6],[200,1010,5],[900,1040,4]].forEach(([x, y, s]) => { ctx.beginPath(); for(let k = 0; k < 8; k++){ const a = k * Math.PI / 4, rr = k % 2 ? s : s * 3; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); }); ctx.restore();
+  // সোনালি ফ্রেম
+  const frame = (inset, w, a) => { ctx.strokeStyle = a; ctx.lineWidth = w; ctx.beginPath(); ctx.roundRect(inset, inset, W - inset * 2, H - inset * 2, 36); ctx.stroke(); };
+  const fg = ctx.createLinearGradient(0, 0, W, H); fg.addColorStop(0, T.a); fg.addColorStop(.5, T.b); fg.addColorStop(1, T.c);
+  frame(26, 6, fg); frame(44, 2, 'rgba(244,215,122,.55)');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  // শীর্ষ: লোগো + সংগঠন
+  const logo = document.querySelector('.banner .logo');
+  let y = 92;
+  if(logo && logo.naturalWidth){ ctx.save(); ctx.beginPath(); ctx.arc(W / 2, y + 44, 48, 0, 7); ctx.clip(); ctx.fillStyle = '#fff'; ctx.fillRect(W / 2 - 48, y - 4, 96, 96); ctx.drawImage(logo, W / 2 - 48, y - 4, 96, 96); ctx.restore(); ctx.strokeStyle = fg; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W / 2, y + 44, 50, 0, 7); ctx.stroke(); }
+  ctx.fillStyle = '#fff'; ctx.font = '800 38px ' + HEAD; ctx.fillText('স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন', W / 2, 235);
+  const exam = (TRANSCRIPT_CFG.examName || 'বৃত্তি পরীক্ষা') + '-' + toBn(year);
+  cardFit(ctx, exam, 880, 32, 22, s => '600 ' + s + 'px ' + BODY); ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillText(exam, W / 2, 284);
+  // ছবি / পদক বৃত্ত
+  const cx = W / 2, cy = 560, R = 190;
+  ctx.save(); ctx.shadowColor = 'rgba(244,215,122,.55)'; ctx.shadowBlur = 60; ctx.beginPath(); ctx.arc(cx, cy, R + 14, 0, 7); ctx.fillStyle = T.b; ctx.fill(); ctx.restore();
+  const ring = ctx.createConicGradient ? ctx.createConicGradient(-1, cx, cy) : fg;
+  if(ctx.createConicGradient){ ring.addColorStop(0, T.a); ring.addColorStop(.3, T.b); ring.addColorStop(.5, T.c); ring.addColorStop(.75, T.b); ring.addColorStop(1, T.a); }
+  ctx.beginPath(); ctx.arc(cx, cy, R + 14, 0, 7); ctx.fillStyle = ring; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R + 2, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R - 6, 0, 7); ctx.clip();
+  if(photo){ const sc = Math.max((R * 2) / photo.width, (R * 2) / photo.height), w = photo.width * sc, h = photo.height * sc; ctx.drawImage(photo, cx - w / 2, cy - R + 6 - (h - R * 2) * .18, w, h); }
+  else { const pg = ctx.createRadialGradient(cx - 40, cy - 60, 20, cx, cy, R); pg.addColorStop(0, '#fff'); pg.addColorStop(1, '#fbf1cf'); ctx.fillStyle = pg; ctx.fillRect(cx - R, cy - R, R * 2, R * 2); ctx.font = '230px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, cx, cy + 10); ctx.textBaseline = 'alphabetic'; }
+  ctx.restore();
+  if(photo){ const bx = cx + R * .72, by = cy + R * .72; ctx.beginPath(); ctx.arc(bx, by, 58, 0, 7); ctx.fillStyle = fg; ctx.fill(); ctx.beginPath(); ctx.arc(bx, by, 51, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); ctx.font = '66px sans-serif'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(T.ic, bx, by + 4); ctx.textBaseline = 'alphabetic'; }
+  // অভিনন্দন
+  ctx.fillStyle = fg; ctx.font = '800 76px ' + HEAD; ctx.fillText('অভিনন্দন!', W / 2, 872);
+  // নাম
+  ctx.fillStyle = '#fff'; const nm = String(r.name || '');
+  cardFit(ctx, nm, 900, 72, 44, s => '700 ' + s + 'px ' + HEAD); let nlines = [nm];
+  if(ctx.measureText(nm).width > 900){ ctx.font = '700 48px ' + HEAD; nlines = cardWrap(ctx, nm, 900).slice(0, 2); }
+  nlines.forEach((ln, i) => ctx.fillText(ln, W / 2, 962 + i * 62));
+  const ny = 962 + (nlines.length - 1) * 62;
+  // ফলাফল পিল
+  if(res){
+    ctx.font = '700 46px ' + BODY; const tw = ctx.measureText(res).width, pw = tw + 150, py = ny + 40, ph = 84;
+    ctx.beginPath(); ctx.roundRect(W / 2 - pw / 2, py, pw, ph, 42); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); ctx.strokeStyle = fg; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = '46px sans-serif'; ctx.fillText(T.ic, W / 2 - pw / 2 + 28, py + 58);
+    ctx.font = '700 46px ' + BODY; ctx.fillStyle = T.a; ctx.fillText(res, W / 2 - pw / 2 + 92, py + 58); ctx.textAlign = 'center';
+  }
+  // নিচের লেখা
+  ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.font = '500 32px ' + BODY;
+  ctx.fillText('পরিশ্রম ও মেধার জন্য আমরা গর্বিত', W / 2, 1218);
+  ctx.strokeStyle = 'rgba(244,215,122,.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W / 2 - 140, 1248); ctx.lineTo(W / 2 + 140, 1248); ctx.stroke();
+  ctx.fillStyle = T.a; ctx.font = '600 28px ' + BODY; ctx.fillText((location.host || 'ফলাফল') + ' — ফলাফল দেখুন', W / 2, 1292);
+  return cv;
+}
+async function cardAction(mode){
+  const btns = document.querySelectorAll('#btnCardShare,#btnCardDl'); btns.forEach(b => { b.disabled = true; });
+  try{
+    const r = cheerCtx; const cv = await buildCard(r, cheerYear);
+    const blob = await new Promise((ok, no) => { try{ cv.toBlob(b => b ? ok(b) : no(new Error('blob')), 'image/png'); }catch(e){ no(e); } });
+    const fname = 'scka-result-card.png', file = new File([blob], 'result-card.png', { type:'image/png' });
+    if(mode === 'share' && navigator.canShare && navigator.canShare({ files:[file] })){
+      try{ await navigator.share({ files:[file], title:'ফলাফল', text:'আমার বৃত্তি পরীক্ষার ফলাফল 🎉' }); return; }catch(e){ if(e && e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast('কার্ডটি ডাউনলোড হয়েছে');
+  }catch(e){ console.error(e); toast('কার্ড তৈরি করা যায়নি, আবার চেষ্টা করুন', 'err'); }
+  finally{ btns.forEach(b => { b.disabled = false; }); }
+}
+let cheerCtx = null;
+document.addEventListener('click', e => {
+  if(e.target.closest('#btnCardShare')) cardAction('share');
+  else if(e.target.closest('#btnCardDl')) cardAction('dl');
+});
+
 /* ---------- অভিনন্দন বার্তা, ব্যাজ ও কনফেটি ---------- */
 function showCheer(r){
   const box = $('cheer'), res = String(r.result || '').trim(), nm = esc(r.name || '');
@@ -1855,7 +1961,7 @@ function showCheer(r){
   box.className = 'cheer ' + v.cls; box.hidden = false;
   const ph = String(r.photo || '').trim();
   box.innerHTML = '<div class="cb"><img class="cph" alt="" hidden><span class="cmed" aria-hidden="true">' + v.ic + '</span></div><div class="cx"><h3>' + v.t + '</h3>' + (res ? '<div class="cres">ফলাফল: <b>' + esc(res) + '</b>' + '</div>' : '') + '<p>' + v.p + '</p>'
-    + '<button type="button" class="cgo" id="btnShowMark">মার্কশিট দেখুন <span aria-hidden="true">→</span></button><button type="button" class="cback" id="btnCheerBack">← পুনরায় অনুসন্ধান</button></div>';
+    + '<button type="button" class="cgo" id="btnShowMark">মার্কশিট দেখুন <span aria-hidden="true">→</span></button><div class="csr"><button type="button" class="csh" id="btnCardShare">📤 কার্ড শেয়ার করুন</button><button type="button" class="csh" id="btnCardDl">⬇️ কার্ড ডাউনলোড</button></div><button type="button" class="cback" id="btnCheerBack">← পুনরায় অনুসন্ধান</button></div>';
   if(ph){ const im = box.querySelector('.cph'); loadImgChain(im, ph, () => {}, () => { im.hidden = false; box.querySelector('.cb').classList.add('hasph'); }); }
 }
 function hideTranscript(){
