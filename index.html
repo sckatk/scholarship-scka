@@ -339,6 +339,26 @@ footer .copy{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,
 #adminApp .burger{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--emerald-50);color:var(--emerald-700)}
 #adminApp .burger svg{width:22px;height:22px}
 #adminApp .topbar h1{font-family:var(--font-head);font-size:1.1rem;color:var(--emerald-800);flex:1}
+#adminApp .se-hero{display:flex;gap:14px;align-items:center;padding:18px;border-radius:20px;color:#fff;margin-bottom:12px;background:radial-gradient(120% 140% at 95% -20%,rgba(230,191,85,.4),transparent 55%),linear-gradient(135deg,var(--emerald-900),var(--emerald-600));border:1.5px solid rgba(230,191,85,.6)}
+#adminApp .se-hero h2{margin:0 0 4px;font-size:1.25rem}
+#adminApp .se-hero p{margin:0;opacity:.9;font-size:.92rem;line-height:1.5}
+#adminApp .se-ic{font-size:2.2rem;flex:0 0 auto}
+#adminApp .se-tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
+#adminApp .se-tabs button{border:0;font:inherit;font-weight:700;padding:9px 16px;border-radius:99px;background:#eef3f0;color:var(--emerald-800);white-space:nowrap}
+#adminApp .se-tabs button.on{background:var(--emerald-700);color:#fff}
+#adminApp .se-year{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#adminApp .se-year .a-in{flex:1 1 180px}
+#adminApp .se-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+#adminApp .se-stats div,#adminApp .se-prev div{background:#fff;border:1px solid #e3ece7;border-radius:14px;padding:12px 6px;text-align:center}
+#adminApp .se-stats b,#adminApp .se-prev b{display:block;font-size:1.5rem;color:var(--emerald-800)}
+#adminApp .se-stats span,#adminApp .se-prev span{font-size:.8rem;color:#5c6f68}
+#adminApp .st-tbl.se-tbl{min-width:0}
+#adminApp .se-tbl th,#adminApp .se-tbl td{padding:9px 6px;font-size:.9rem}
+#adminApp .st-tbl.se-tbl .ac .a-btn{height:32px;padding:0 8px;margin-left:2px}
+#adminApp .se-tbl td.ac{white-space:nowrap}
+#adminApp .se-prev{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+#adminApp .se-prev .bad b{color:#b3261e}
+#menu button.menu-seat{border:1px dashed rgba(230,191,85,.7)}
 #promo{padding:6px 0 4px}
 #promo .promo{position:relative;overflow:hidden;border-radius:24px;padding:22px 20px;text-align:center;color:#fff;margin:14px 0 0;box-shadow:0 14px 36px -14px rgba(2,61,51,.55)}
 #promo .promo.res{background:radial-gradient(120% 140% at 85% -10%,rgba(230,191,85,.35),transparent 55%),linear-gradient(135deg,var(--emerald-900),var(--emerald-600));border:1.5px solid rgba(230,191,85,.75)}
@@ -1134,6 +1154,7 @@ body.page-papers .back-home{display:flex}
       <button data-view="grading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.5 7 .9-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.9z"/></svg>গ্রেডিং সিস্টেম</button>
       <button data-view="notices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg>নোটিশ</button>
       <button data-view="promo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M19 8a5 5 0 0 1 0 8"/></svg>হোমপেইজ ঘোষণা</button>
+      <button data-view="seat" class="menu-seat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4"/></svg>সিট প্ল্যান</button>
       <button data-view="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6M9 12h6"/></svg>পরীক্ষার পরিচিতি</button>
       <button data-view="papers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6"/></svg>প্রশ্নপত্র আর্কাইভ</button>
       <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>সেটিংস</button>
@@ -1206,6 +1227,7 @@ body.page-papers .back-home{display:flex}
       <section class="view" id="v-notices"></section>
       <section class="view" id="v-about"></section>
       <section class="view" id="v-promo"></section>
+      <section class="view" id="v-seat"></section>
       <section class="view" id="v-papers"></section>
       <section class="view" id="v-settings"></section>
     </main>
@@ -1236,6 +1258,19 @@ body.page-papers .back-home{display:flex}
     <div id="edBody"></div>
     <div class="a-err" id="edErr" role="alert"></div>
     <div class="cf-btns"><button type="button" class="a-btn" id="edNo">বাতিল</button><button type="button" class="a-btn primary" id="edYes">💾 সংরক্ষণ</button></div>
+  </div>
+</div>
+<div class="cf-back" id="seModal" hidden>
+  <div class="cf-card ed-card" role="dialog" aria-modal="true" aria-labelledby="seTitle">
+    <h3 id="seTitle">পরীক্ষার্থী</h3>
+    <div class="ed-grid">
+      <div><label class="fl" for="seRoll">রোল</label><input class="a-in" id="seRoll" inputmode="numeric"></div>
+      <div><label class="fl" for="seCls">শ্রেণি</label><input class="a-in" id="seCls" placeholder="যেমন: পঞ্চম"></div>
+      <div class="full"><label class="fl" for="seName">নাম</label><input class="a-in" id="seName"></div>
+      <div class="full"><label class="fl" for="sePhoto">ছবির লিংক (ঐচ্ছিক)</label><input class="a-in" id="sePhoto" placeholder="https://…"></div>
+    </div>
+    <div class="a-err" id="seErr" role="alert"></div>
+    <div class="cf-btns"><button type="button" class="a-btn" id="seNo">বাতিল</button><button type="button" class="a-btn primary" id="seYes">💾 সংরক্ষণ</button></div>
   </div>
 </div>
 <div class="cf-back" id="cfModal" hidden>
@@ -1366,7 +1401,7 @@ const Cloud = (() => {
   }
   function derive(db){
     const years = db.years || [], pubYears = years.filter(y => y.published);
-    const adm = JSON.stringify({ years, settings:db.settings || {}, notices:db.notices || [], papers:db.papers || [], grading:db.grading || null, log:db.log || [] });
+    const adm = JSON.stringify({ years, settings:db.settings || {}, notices:db.notices || [], papers:db.papers || [], grading:db.grading || null, log:db.log || [], seatYears:db.seatYears || [] });
     const pub = JSON.stringify({
       years: pubYears.map(y => ({ label:y.label, published:true, sigUrl:y.sigUrl || '', sigName:y.sigName || '', sigTitle:y.sigTitle || '' })),
       counts: Object.fromEntries(pubYears.map(y => [y.label, Object.keys(db.results[y.label] || {}).length])),
@@ -1377,6 +1412,7 @@ const Cloud = (() => {
     });
     const res = new Map();
     for(const y in db.results) for(const k in db.results[y]) res.set(rid(y, k), JSON.stringify({ y, k, rec:db.results[y][k] }));
+    for(const y in (db.seat || {})) for(const k in db.seat[y]) res.set('S~' + enc(y) + '-' + enc(k), JSON.stringify({ y, k, rec:db.seat[y][k] }));
     return { adm, pub, res };
   }
   function queue(){ dirty = true; setPill('sync'); clearTimeout(timer); timer = setTimeout(sync, 600); }
@@ -1391,7 +1427,7 @@ const Cloud = (() => {
         last.res.forEach((s, id) => { if(!d.res.has(id)) ops.push(['del', id]); });
         for(let i = 0; i < ops.length; i += 400){
           const b = fs.batch();
-          ops.slice(i, i + 400).forEach(o => { const ref = fs.collection('results').doc(o[1]); if(o[0] === 'set') b.set(ref, JSON.parse(o[2])); else b.delete(ref); });
+          ops.slice(i, i + 400).forEach(o => { const ref = o[1].startsWith('S~') ? fs.collection('seat').doc(o[1].slice(2)) : fs.collection('results').doc(o[1]); if(o[0] === 'set') b.set(ref, JSON.parse(o[2])); else b.delete(ref); });
           await b.commit();
         }
         if(last.adm !== d.adm) await fs.doc('meta/admin').set(JSON.parse(d.adm));
@@ -1412,6 +1448,8 @@ const Cloud = (() => {
       data = a.data(); data.results = {}; (data.years || []).forEach(y => { data.results[y.label] = {}; });
       const q = await fs.collection('results').get();
       q.forEach(d => { const v = d.data(); (data.results[v.y] = data.results[v.y] || {})[v.k] = v.rec; });
+      data.seat = {}; (data.seatYears || []).forEach(y => { data.seat[y.label] = {}; });
+      try{ const q2 = await fs.collection('seat').get(); q2.forEach(d => { const v = d.data(); (data.seat[v.y] = data.seat[v.y] || {})[v.k] = v.rec; }); }catch(e){ console.warn('seat read', e); }
     } else {
       fresh = true; data = { years:[], results:{}, log:[] };
       const lg = legacy();
@@ -1553,6 +1591,22 @@ const Store = (() => {
       });
       return { ok: save(), added, updated };
     },
+    seatYears(){ return (load().seatYears || []).slice().sort((a, b) => String(a.label).localeCompare(String(b.label), 'bn')); },
+    addSeatYear(label){ load(); (db.seatYears = db.seatYears || []).push({ label, created:new Date().toISOString() }); (db.seat = db.seat || {})[label] = {}; if(!save()){ db.seatYears.pop(); delete db.seat[label]; return false; } return true; },
+    removeSeatYear(label){ load(); const ys = db.seatYears || [], i = ys.findIndex(y => y.label === label); if(i < 0) return false; const oy = ys[i], os = (db.seat || {})[label]; ys.splice(i, 1); if(db.seat) delete db.seat[label]; if(!save()){ ys.splice(i, 0, oy); (db.seat = db.seat || {})[label] = os; return false; } return true; },
+    seatList(label){ const R = (load().seat || {})[label] || {}; return Object.keys(R).map(k => ({ k, r:R[k] })); },
+    seatCount(label){ return Object.keys((load().seat || {})[label] || {}).length; },
+    putSeat(label, records, replace){
+      load(); db.seat = db.seat || {}; if(replace || !db.seat[label]) db.seat[label] = {};
+      records.forEach(r => { db.seat[label][r.roll] = r; });
+      return { ok: save() };
+    },
+    updateSeat(label, key, rec){
+      load(); const R = (db.seat || {})[label]; if(!R || !R[key]) return false;
+      if(rec.roll !== key && R[rec.roll]) return 'dup';
+      delete R[key]; R[rec.roll] = rec; return save();
+    },
+    deleteSeat(label, key){ load(); const R = (db.seat || {})[label]; if(!R || !R[key]) return false; delete R[key]; return save(); },
     reload(){ if(cloud) return; db = null; load(); },
     papers(){ return (load().papers || []).slice(); },
     addPaper(o){ load(); (db.papers = db.papers || []).push(o); if(!save()){ db.papers.pop(); return false; } return true; },
@@ -2018,11 +2072,11 @@ fitBanner();
 /* ================= এডমিন ড্যাশবোর্ড ================= */
 const ADMIN_TITLES = {
   dashboard:'ড্যাশবোর্ড', years:'পরীক্ষার বছর', students:'পরীক্ষার্থী',
-  results:'ফলাফল আপলোড', grading:'গ্রেডিং সিস্টেম', notices:'নোটিশ', about:'পরীক্ষার পরিচিতি', promo:'হোমপেইজ ঘোষণা', papers:'প্রশ্নপত্র আর্কাইভ', settings:'সেটিংস'
+  results:'ফলাফল আপলোড', grading:'গ্রেডিং সিস্টেম', notices:'নোটিশ', about:'পরীক্ষার পরিচিতি', promo:'হোমপেইজ ঘোষণা', seat:'সিট প্ল্যান ড্যাশবোর্ড', papers:'প্রশ্নপত্র আর্কাইভ', settings:'সেটিংস'
 };
 
 // ড্যাশবোর্ড ছাড়া বাকি ভিউগুলোর জন্য "শীঘ্রই আসছে" প্যানেল
-Object.keys(ADMIN_TITLES).filter(k => !['dashboard','years','results','grading','settings','students','notices','about','papers','promo'].includes(k)).forEach(k => {
+Object.keys(ADMIN_TITLES).filter(k => !['dashboard','years','results','grading','settings','students','notices','about','papers','promo','seat'].includes(k)).forEach(k => {
   $('v-'+k).innerHTML = `<div class="panel"><div class="empty"><span class="e">🛠️</span>
     <b>${ADMIN_TITLES[k]} <span class="tag">শীঘ্রই আসছে</span></b>এই বিভাগটি পরবর্তী ধাপে তৈরি করা হবে।</div></div>`;
 });
@@ -2040,6 +2094,7 @@ function adminShow(view){
   if(view === 'notices') renderNotices();
   if(view === 'about') renderAbout(true);
   if(view === 'promo') renderPromoAdmin();
+  if(view === 'seat') renderSeat();
   if(view === 'papers') renderPapers();
   $('sidebar').classList.remove('open');
   window.scrollTo({top:0});
@@ -3452,6 +3507,193 @@ document.addEventListener('submit', e => {
   er('');
   if(!saveSettings({ promo:{ res, cd } }, 'হোমপেইজ ঘোষণা হালনাগাদ করা হয়েছে')) return;
   renderPromo(); renderPromoAdmin();
+});
+
+/* ---------- সিট প্ল্যান ড্যাশবোর্ড (আলাদা কাজের জায়গা) ---------- */
+const seState = { year:'', q:'', cls:'', page:1 }, SE_PER = 25;
+let seUp = null, seEdit = null;
+const seSort = (a, b) => String(a.r.cls || '').localeCompare(String(b.r.cls || ''), 'bn') || (parseFloat(a.r.roll) || 0) - (parseFloat(b.r.roll) || 0) || String(a.r.roll).localeCompare(String(b.r.roll));
+
+function parseSeatTable(table){
+  const h = table.findIndex(r => r.filter(c => String(c ?? '').trim() !== '').length >= 2);
+  if(h < 0) return { fatal:'ফাইলে কোনো তথ্য পাওয়া যায়নি।' };
+  const col = {};
+  table[h].forEach((cell, i) => { const k = nk(cell); if(!k) return; for(const f of ['roll', 'name', 'cls', 'photo']) if(col[f] === undefined && FIELD_ALIASES[f].includes(k)){ col[f] = i; return; } });
+  const need = { roll:'রোল', name:'নাম', cls:'শ্রেণি' }, missing = Object.keys(need).filter(f => col[f] === undefined);
+  if(missing.length) return { fatal:'প্রয়োজনীয় কলাম পাওয়া যায়নি: ' + missing.map(f => need[f]).join(', ') + '। প্রথম সারিতে কলামের নাম থাকতে হবে (রোল, নাম, শ্রেণি, ছবির লিংক)।' };
+  const records = [], errors = [], seen = new Map(); let dup = 0, total = 0, photoBad = 0;
+  for(let i = h + 1; i < table.length; i++){
+    const r = table[i] || [];
+    if(r.every(c => String(c ?? '').trim() === '')) continue;
+    total++;
+    const g = f => col[f] === undefined ? '' : String(r[col[f]] ?? '').trim();
+    const roll = cleanNum(g('roll')), name = g('name'), cls = g('cls'); let photo = g('photo');
+    const miss = []; if(!roll) miss.push('রোল'); if(!name) miss.push('নাম'); if(!cls) miss.push('শ্রেণি');
+    if(miss.length){ errors.push('সারি ' + toBn(i + 1) + ': ' + miss.join(', ') + ' নেই'); continue; }
+    if(!/^\d+$/.test(roll)){ errors.push('সারি ' + toBn(i + 1) + ': রোলে শুধু সংখ্যা থাকতে হবে'); continue; }
+    if(photo && !/^https?:\/\//i.test(photo)){ photoBad++; photo = ''; }
+    const rec = { roll, name, cls, photo };
+    if(seen.has(roll)){ dup++; records[seen.get(roll)] = rec; } else { seen.set(roll, records.length); records.push(rec); }
+  }
+  return { records, errors, dup, total, photoBad };
+}
+function seTemplate(){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['রোল,নাম,শ্রেণি,ছবির লিংক\r\n101,রাহিম উদ্দিন,পঞ্চম,https://drive.google.com/file/d/xxxxxxxx/view\r\n102,সালমা আক্তার,পঞ্চম,\r\n'], { type:'text/csv;charset=utf-8' }));
+  a.download = 'seat-students-template.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+function renderSeat(){
+  const ys = Store.seatYears(), host = $('v-seat'); seUp = null;
+  if(!ys.some(y => y.label === seState.year)) seState.year = ys.length ? ys[ys.length - 1].label : '';
+  const y = seState.year, list = y ? Store.seatList(y) : [];
+  const byCls = {}; list.forEach(({ r }) => { byCls[r.cls] = (byCls[r.cls] || 0) + 1; });
+  const clsKeys = Object.keys(byCls).sort((a, b) => a.localeCompare(b, 'bn')), withPhoto = list.filter(({ r }) => r.photo).length;
+  if(seState.cls && !byCls[seState.cls]) seState.cls = '';
+  host.innerHTML = `
+    <div class="se-hero"><div class="se-ic">🪑</div><div><h2>সিট প্ল্যান ড্যাশবোর্ড</h2><p>পরীক্ষার্থীর তালিকা থেকে স্বয়ংক্রিয় সিট প্ল্যান ও প্রবেশপত্র তৈরির আলাদা কাজের জায়গা। এটি ফলাফলের তালিকা থেকে সম্পূর্ণ আলাদা।</p></div></div>
+    <div class="se-tabs" role="tablist"><button type="button" class="on" role="tab" aria-selected="true">👥 পরীক্ষার্থী</button></div>
+    <div class="panel">
+      <h3>📅 পরীক্ষার সাল</h3>
+      <div class="se-year">
+        <select class="a-in" id="seYear" aria-label="সাল">${ys.length ? '' : '<option value="">এখনো কোনো সাল নেই</option>'}${ys.map(v => `<option value="${esc(v.label)}"${v.label === y ? ' selected' : ''}>${esc(v.label)} (${toBn(Store.seatCount(v.label))} জন)</option>`).join('')}</select>
+        ${y ? '<button type="button" class="a-btn danger sm" id="seDelYear">🗑️ এই সাল মুছুন</button>' : ''}
+      </div>
+      <div class="se-year" style="margin-top:10px"><input class="a-in" id="seNewYear" maxlength="30" placeholder="নতুন সাল, যেমন ২০২৭"><button type="button" class="a-btn primary sm" id="seAddYear">＋ সাল যোগ করুন</button></div>
+    </div>
+    ${y ? `
+    <div class="se-stats">
+      <div><b>${toBn(list.length)}</b><span>মোট পরীক্ষার্থী</span></div>
+      <div><b>${toBn(clsKeys.length)}</b><span>শ্রেণি</span></div>
+      <div><b>${toBn(withPhoto)}</b><span>ছবির লিংক আছে</span></div>
+    </div>
+    <div class="panel">
+      <h3>⬆️ পরীক্ষার্থী আপলোড (Excel / CSV)</h3>
+      <label class="drop" id="seDrop"><input type="file" id="seFile" accept=".xlsx,.csv,.txt"><div class="e">📄</div><b>ফাইল বেছে নিন বা এখানে ছেড়ে দিন</b><div class="hint">.xlsx অথবা .csv</div></label>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="a-btn sm" id="seTpl">⬇ নমুনা টেমপ্লেট (CSV)</button><button type="button" class="a-btn sm" id="seAddOne">＋ একজন যোগ করুন</button></div>
+      <details class="cols"><summary>ফাইলে কোন কোন কলাম থাকবে?</summary>
+        <p>প্রথম সারিতে কলামের নাম থাকবে। <b>আবশ্যক:</b> <code>রোল</code> <code>নাম</code> <code>শ্রেণি</code></p>
+        <p><b>ঐচ্ছিক:</b> <code>ছবির লিংক</code> (গুগল ড্রাইভ বা সরাসরি ছবির লিংক, <code>https://</code> দিয়ে শুরু)</p>
+        <p>একজন পরীক্ষার্থী = একটি সারি। রোল শুধু সংখ্যা হতে হবে এবং প্রতিটি রোল আলাদা হবে।</p>
+      </details>
+      <div id="seUpBox"></div>
+    </div>
+    <div class="panel">
+      <h3>🧑🎓 পরীক্ষার্থীর তালিকা</h3>
+      ${list.length ? `
+      <div class="chips" style="margin:0 0 12px"><button type="button" class="chip${seState.cls ? '' : ' on'}" data-secls="">সব</button>${clsKeys.map(c => `<button type="button" class="chip${seState.cls === c ? ' on' : ''}" data-secls="${esc(c)}">${esc(c)} (${toBn(byCls[c])})</button>`).join('')}</div>
+      <input class="a-in" id="seQ" type="search" placeholder="নাম বা রোল দিয়ে খুঁজুন" value="${esc(seState.q)}">
+      <div id="seList"></div>` : '<div class="empty"><span class="e">📭</span><b>এই সালে এখনো কোনো পরীক্ষার্থী নেই</b>উপরে ফাইল আপলোড করুন বা একজন একজন করে যোগ করুন।</div>'}
+    </div>` : '<div class="panel"><div class="empty"><span class="e">👆</span><b>আগে একটি সাল যোগ করুন</b>যেমন ২০২৭ লিখে "সাল যোগ করুন" চাপুন।</div></div>'}`;
+  if(y && list.length) drawSeList();
+  if(y){ const d = $('seDrop'); ['dragenter', 'dragover'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); d.classList.add('drag'); })); ['dragleave', 'drop'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); d.classList.remove('drag'); })); d.addEventListener('drop', e => seHandleFile(e.dataTransfer.files[0])); }
+}
+function drawSeList(){
+  const box = $('seList'); if(!box) return;
+  const q = nk(seState.q); let list = Store.seatList(seState.year).sort(seSort);
+  if(seState.cls) list = list.filter(({ r }) => r.cls === seState.cls);
+  if(q) list = list.filter(({ r }) => nk([r.name, r.roll, r.cls].join(' ')).includes(q));
+  if(!list.length){ box.innerHTML = '<div class="empty"><span class="e">🔍</span>কোনো পরীক্ষার্থী পাওয়া যায়নি।</div>'; return; }
+  const pages = Math.max(1, Math.ceil(list.length / SE_PER)); seState.page = Math.min(seState.page, pages);
+  const part = list.slice((seState.page - 1) * SE_PER, seState.page * SE_PER);
+  box.innerHTML = `<div class="st-wrap"><table class="st-tbl se-tbl"><thead><tr><th>রোল</th><th>নাম</th><th>শ্রেণি</th><th></th></tr></thead><tbody>
+    ${part.map(({ k, r }) => `<tr><td>${esc(r.roll)}</td><td>${esc(r.name)}${r.photo ? ' <span title="ছবির লিংক আছে">🖼️</span>' : ''}</td><td>${esc(r.cls)}</td><td class="ac"><button type="button" class="a-btn sm" data-seed="${esc(k)}">✏️</button><button type="button" class="a-btn danger sm" data-sedel="${esc(k)}" aria-label="মুছুন">🗑️</button></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="st-pg"><span>মোট ${toBn(list.length)} জন</span><span>${pages > 1 ? `<button type="button" class="a-btn sm" data-sepg="-1" ${seState.page <= 1 ? 'disabled' : ''}>‹</button> ${toBn(seState.page)} / ${toBn(pages)} <button type="button" class="a-btn sm" data-sepg="1" ${seState.page >= pages ? 'disabled' : ''}>›</button>` : ''}</span></div>`;
+}
+async function seHandleFile(file){
+  if(!file) return; const box = $('seUpBox'); box.innerHTML = '<p class="hint">ফাইল পড়া হচ্ছে…</p>'; seUp = null;
+  try{
+    const res = parseSeatTable(await readTable(file));
+    if(res.fatal){ box.innerHTML = '<div class="a-err" style="display:block">' + esc(res.fatal) + '</div>'; return; }
+    seUp = { ...res, fileName:file.name };
+    const exist = Store.seatCount(seState.year);
+    box.innerHTML = `
+      <div class="se-prev">
+        <div><b>${toBn(res.records.length)}</b><span>সঠিক সারি</span></div>
+        <div class="${res.errors.length ? 'bad' : ''}"><b>${toBn(res.errors.length)}</b><span>ত্রুটি</span></div>
+        <div><b>${toBn(res.dup)}</b><span>ফাইলে একই রোল</span></div>
+        <div><b>${toBn(res.photoBad)}</b><span>ছবির লিংক বাদ</span></div>
+      </div>
+      ${res.errors.length ? '<div class="a-err" style="display:block;margin-top:10px">' + res.errors.slice(0, 8).map(esc).join('<br>') + (res.errors.length > 8 ? '<br>…আরও ' + toBn(res.errors.length - 8) + 'টি' : '') + '<br><b>ত্রুটিযুক্ত সারি বাদ দিয়ে বাকিগুলো আপলোড হবে।</b></div>' : ''}
+      ${res.records.length ? `<div class="st-wrap" style="margin-top:10px"><table class="st-tbl"><thead><tr><th>রোল</th><th>নাম</th><th>শ্রেণি</th><th>ছবি</th></tr></thead><tbody>${res.records.slice(0, 5).map(r => `<tr><td>${esc(r.roll)}</td><td>${esc(r.name)}</td><td>${esc(r.cls)}</td><td>${r.photo ? '✓' : '—'}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      <div class="modes" style="margin-top:12px">
+        <label><input type="radio" name="seMode" value="merge" checked><span>যোগ / হালনাগাদ করুন<small>একই রোল আগে থাকলে নতুন তথ্য বসবে, বাকিরা থাকবে</small></span></label>
+        <label><input type="radio" name="seMode" value="replace"><span>এই সালের সব পুরোনো তালিকা মুছে নতুন করে বসান${exist ? ' (' + toBn(exist) + ' জন মুছবে)' : ''}</span></label>
+      </div>
+      <button type="button" class="a-btn primary" id="seConfirm" style="width:100%"${res.records.length ? '' : ' disabled'}>আপলোড করুন (${toBn(res.records.length)} জন)</button>`;
+  }catch(e){ box.innerHTML = '<div class="a-err" style="display:block">' + esc(e.user ? e.message : 'ফাইলটি পড়া যায়নি।') + '</div>'; }
+}
+async function seConfirmUpload(){
+  if(!seUp || !seUp.records.length) return;
+  const replace = document.querySelector('input[name=seMode]:checked').value === 'replace', y = seState.year;
+  if(replace && !await askConfirm({ title:'পুরোনো তালিকা মুছে ফেলবেন?', icon:'⚠️', tone:'danger', confirmText:'হ্যাঁ, নতুন করে বসান', message:'এই সালের বর্তমান সব পরীক্ষার্থী মুছে ফাইলের তালিকা বসবে।', items:[y + ' সাল', toBn(Store.seatCount(y)) + ' জনের পুরোনো তালিকা মুছবে', toBn(seUp.records.length) + ' জন নতুন']})) return;
+  const n = seUp.records.length, r = Store.putSeat(y, seUp.records, replace);
+  if(!r.ok){ Store.reload(); return toast('সংরক্ষণ করা যায়নি', 'err'); }
+  Store.log('সিট প্ল্যান ' + y + ': ' + n + ' জন পরীক্ষার্থী আপলোড (' + (replace ? 'নতুন করে' : 'যোগ/হালনাগাদ') + ')');
+  seUp = null; renderSeat(); toast(toBn(n) + ' জন পরীক্ষার্থী সংরক্ষিত হয়েছে');
+}
+function openSeEdit(key){
+  const r = key ? (Store.seatList(seState.year).find(x => x.k === key) || {}).r : null; if(key && !r) return;
+  seEdit = { key:key || null };
+  $('seTitle').textContent = r ? 'পরীক্ষার্থী সম্পাদনা' : 'নতুন পরীক্ষার্থী';
+  $('seRoll').value = r ? r.roll : ''; $('seName').value = r ? r.name : ''; $('seCls').value = r ? r.cls : ''; $('sePhoto').value = r ? (r.photo || '') : '';
+  $('seErr').textContent = ''; $('seModal').hidden = false; $('seRoll').focus();
+}
+function closeSeEdit(){ $('seModal').hidden = true; seEdit = null; }
+function saveSeEdit(){
+  const g = id => $(id).value.trim(), er = m => { $('seErr').textContent = m; };
+  const roll = cleanNum(g('seRoll')), name = g('seName'), cls = g('seCls'), photo = g('sePhoto');
+  if(!roll || !name || !cls) return er('রোল, নাম ও শ্রেণি আবশ্যক।');
+  if(!/^\d+$/.test(roll)) return er('রোলে শুধু সংখ্যা দিন।');
+  if(photo && !/^https?:\/\//i.test(photo)) return er('ছবির লিংক https:// দিয়ে শুরু হতে হবে (বা ফাঁকা রাখুন)।');
+  const y = seState.year, rec = { roll, name, cls, photo };
+  if(seEdit.key){
+    const res = Store.updateSeat(y, seEdit.key, rec);
+    if(res === 'dup') return er('এই রোলের আরেকজন ইতিমধ্যে আছে।');
+    if(!res){ Store.reload(); return er('সংরক্ষণ করা যায়নি।'); }
+  } else {
+    if(Store.seatList(y).some(x => x.k === roll)) return er('এই রোল ইতিমধ্যে আছে। তালিকা থেকে সম্পাদনা করুন।');
+    if(!Store.putSeat(y, [rec], false).ok){ Store.reload(); return er('সংরক্ষণ করা যায়নি।'); }
+  }
+  Store.log('সিট প্ল্যান ' + y + ': রোল ' + roll + ' (' + name + ') ' + (seEdit.key ? 'সম্পাদনা' : 'যোগ') + ' করা হয়েছে');
+  closeSeEdit(); renderSeat(); toast('সংরক্ষিত হয়েছে');
+}
+document.addEventListener('change', e => {
+  if(e.target.id === 'seYear'){ seState.year = e.target.value; seState.q = ''; seState.cls = ''; seState.page = 1; renderSeat(); }
+  else if(e.target.id === 'seFile') seHandleFile(e.target.files[0]);
+});
+document.addEventListener('input', e => { if(e.target.id === 'seQ'){ seState.q = e.target.value; seState.page = 1; drawSeList(); } });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && seEdit) closeSeEdit(); });
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button'); if(!t) return;
+  if(t.id === 'seNo') return closeSeEdit();
+  if(t.id === 'seYes') return saveSeEdit();
+  if(!$('v-seat').contains(t)) return;
+  if(t.id === 'seAddYear'){
+    const v = $('seNewYear').value.trim(); if(!v) return toast('সাল লিখুন', 'err');
+    if(Store.seatYears().some(x => x.label === v)) return toast('এই সাল আগে থেকেই আছে', 'err');
+    if(!Store.addSeatYear(v)){ Store.reload(); return toast('সংরক্ষণ করা যায়নি', 'err'); }
+    seState.year = v; seState.q = ''; seState.cls = ''; seState.page = 1; Store.log('সিট প্ল্যানে নতুন সাল যোগ: ' + v); renderSeat(); toast('সাল যোগ হয়েছে');
+  }
+  else if(t.id === 'seDelYear'){
+    const y = seState.year;
+    if(!await askConfirm({ title:'এই সাল মুছে ফেলবেন?', icon:'🗑️', tone:'danger', confirmText:'হ্যাঁ, মুছুন', message:'এই সালের সব পরীক্ষার্থীর তালিকা মুছে যাবে, ফিরে পাওয়া যাবে না।', items:[y + ' সাল', toBn(Store.seatCount(y)) + ' জন পরীক্ষার্থী'] })) return;
+    if(!Store.removeSeatYear(y)){ Store.reload(); return toast('মুছে ফেলা যায়নি', 'err'); }
+    Store.log('সিট প্ল্যানের সাল মুছে ফেলা হয়েছে: ' + y); seState.year = ''; renderSeat(); toast('সাল মুছে ফেলা হয়েছে');
+  }
+  else if(t.id === 'seTpl') seTemplate();
+  else if(t.id === 'seAddOne') openSeEdit();
+  else if(t.id === 'seConfirm') seConfirmUpload();
+  else if(t.dataset.secls !== undefined){ seState.cls = t.dataset.secls; seState.page = 1; renderSeat(); }
+  else if(t.dataset.sepg){ seState.page += +t.dataset.sepg; drawSeList(); }
+  else if(t.dataset.seed) openSeEdit(t.dataset.seed);
+  else if(t.dataset.sedel){
+    const k = t.dataset.sedel, r = (Store.seatList(seState.year).find(x => x.k === k) || {}).r; if(!r) return;
+    if(!await askConfirm({ title:'এই পরীক্ষার্থীকে মুছে ফেলবেন?', icon:'🗑️', tone:'danger', confirmText:'হ্যাঁ, মুছুন', message:'তালিকা থেকে মুছে যাবে।', items:[seState.year + ' সাল', 'রোল: ' + r.roll + ' • ' + r.name] })) return;
+    if(!Store.deleteSeat(seState.year, k)){ Store.reload(); return toast('মুছে ফেলা যায়নি', 'err'); }
+    Store.log('সিট প্ল্যান ' + seState.year + ': রোল ' + r.roll + ' (' + r.name + ') মুছে ফেলা হয়েছে'); renderSeat(); toast('মুছে ফেলা হয়েছে');
+  }
 });
 
 let authed = false, fails = 0, lockUntil = 0;
