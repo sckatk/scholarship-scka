@@ -343,6 +343,19 @@ footer .copy{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,
 #adminApp .se-hero h2{margin:0 0 4px;font-size:1.25rem}
 #adminApp .se-hero p{margin:0;opacity:.9;font-size:.92rem;line-height:1.5}
 #adminApp .se-ic{font-size:2.2rem;flex:0 0 auto}
+#adminApp .se-goto{width:100%;justify-content:space-between;margin-bottom:12px;height:52px;background:var(--emerald-700);color:#fff;border-color:var(--emerald-700)}
+#adminApp .ce-cap{padding:10px 14px;border-radius:12px;font-weight:600;font-size:.92rem;margin-bottom:12px;background:#f1f5f3}
+#adminApp .ce-cap.ok{background:#e6f6ec;color:#14532d}#adminApp .ce-cap.bad{background:#fff4e0;color:#8a4b00}
+#adminApp .ce-form{display:grid;gap:10px}
+#adminApp .ce-form label,#adminApp .ce-tools label{display:grid;gap:4px;font-weight:600;font-size:.88rem}
+#adminApp .ce-form small{font-weight:400;color:var(--muted,#6b7a74)}
+#adminApp .ce-head{display:flex;gap:8px}#adminApp .ce-head .a-in{flex:1;font-weight:700}
+#adminApp .ce-sum{margin:8px 0;color:var(--emerald-800);font-weight:600;font-size:.9rem}
+#adminApp .ce-tools{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px}
+#adminApp .ce-rooms{display:grid;gap:8px}
+#adminApp .ce-room{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center}
+#adminApp .ce-room label{display:flex;align-items:center;gap:6px;font-size:.85rem}
+#adminApp .ce-room label .a-in{width:84px;text-align:center}
 #adminApp .se-tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
 #adminApp .se-tabs button{border:0;font:inherit;font-weight:700;padding:9px 16px;border-radius:99px;background:#eef3f0;color:var(--emerald-800);white-space:nowrap}
 #adminApp .se-tabs button.on{background:var(--emerald-700);color:#fff}
@@ -1401,7 +1414,7 @@ const Cloud = (() => {
   }
   function derive(db){
     const years = db.years || [], pubYears = years.filter(y => y.published);
-    const adm = JSON.stringify({ years, settings:db.settings || {}, notices:db.notices || [], papers:db.papers || [], grading:db.grading || null, log:db.log || [], seatYears:db.seatYears || [] });
+    const adm = JSON.stringify({ years, settings:db.settings || {}, notices:db.notices || [], papers:db.papers || [], grading:db.grading || null, log:db.log || [], seatYears:db.seatYears || [], seatCenters:db.seatCenters || {} });
     const pub = JSON.stringify({
       years: pubYears.map(y => ({ label:y.label, published:true, sigUrl:y.sigUrl || '', sigName:y.sigName || '', sigTitle:y.sigTitle || '' })),
       counts: Object.fromEntries(pubYears.map(y => [y.label, Object.keys(db.results[y.label] || {}).length])),
@@ -1593,7 +1606,9 @@ const Store = (() => {
     },
     seatYears(){ return (load().seatYears || []).slice().sort((a, b) => String(a.label).localeCompare(String(b.label), 'bn')); },
     addSeatYear(label){ load(); (db.seatYears = db.seatYears || []).push({ label, created:new Date().toISOString() }); (db.seat = db.seat || {})[label] = {}; if(!save()){ db.seatYears.pop(); delete db.seat[label]; return false; } return true; },
-    removeSeatYear(label){ load(); const ys = db.seatYears || [], i = ys.findIndex(y => y.label === label); if(i < 0) return false; const oy = ys[i], os = (db.seat || {})[label]; ys.splice(i, 1); if(db.seat) delete db.seat[label]; if(!save()){ ys.splice(i, 0, oy); (db.seat = db.seat || {})[label] = os; return false; } return true; },
+    seatCenters(label){ return JSON.parse(JSON.stringify(((load().seatCenters || {})[label]) || [])); },
+    saveSeatCenters(label, arr){ load(); db.seatCenters = db.seatCenters || {}; const old = db.seatCenters[label]; db.seatCenters[label] = arr; if(!save()){ if(old) db.seatCenters[label] = old; else delete db.seatCenters[label]; return false; } return true; },
+    removeSeatYear(label){ load(); const ys = db.seatYears || [], i = ys.findIndex(y => y.label === label); if(i < 0) return false; const oy = ys[i], os = (db.seat || {})[label]; ys.splice(i, 1); if(db.seat) delete db.seat[label]; const oc = (db.seatCenters || {})[label]; if(db.seatCenters) delete db.seatCenters[label]; if(!save()){ if(oc) db.seatCenters[label] = oc; ys.splice(i, 0, oy); (db.seat = db.seat || {})[label] = os; return false; } return true; },
     seatList(label){ const R = (load().seat || {})[label] || {}; return Object.keys(R).map(k => ({ k, r:R[k] })); },
     seatCount(label){ return Object.keys((load().seat || {})[label] || {}).length; },
     putSeat(label, records, replace){
@@ -3510,7 +3525,7 @@ document.addEventListener('submit', e => {
 });
 
 /* ---------- সিট প্ল্যান ড্যাশবোর্ড (আলাদা কাজের জায়গা) ---------- */
-const seState = { year:'', q:'', cls:'', page:1 }, SE_PER = 25;
+const seState = { year:'', q:'', cls:'', page:1, view:'main' }, SE_PER = 25;
 let seUp = null, seEdit = null;
 const seSort = (a, b) => String(a.r.cls || '').localeCompare(String(b.r.cls || ''), 'bn') || (parseFloat(a.r.roll) || 0) - (parseFloat(b.r.roll) || 0) || String(a.r.roll).localeCompare(String(b.r.roll));
 
@@ -3546,12 +3561,15 @@ function seTemplate(){
 function renderSeat(){
   const ys = Store.seatYears(), host = $('v-seat'); seUp = null;
   if(!ys.some(y => y.label === seState.year)) seState.year = ys.length ? ys[ys.length - 1].label : '';
+  if(seState.view === 'centers' && seState.year) return renderCenters();
+  seState.view = 'main';
   const y = seState.year, list = y ? Store.seatList(y) : [];
   const byCls = {}; list.forEach(({ r }) => { byCls[r.cls] = (byCls[r.cls] || 0) + 1; });
   const clsKeys = Object.keys(byCls).sort((a, b) => a.localeCompare(b, 'bn')), withPhoto = list.filter(({ r }) => r.photo).length;
   if(seState.cls && !byCls[seState.cls]) seState.cls = '';
   host.innerHTML = `
     <div class="se-hero"><div class="se-ic">🪑</div><div><h2>সিট প্ল্যান ড্যাশবোর্ড</h2><p>পরীক্ষার্থীর তালিকা থেকে স্বয়ংক্রিয় সিট প্ল্যান ও প্রবেশপত্র তৈরির আলাদা কাজের জায়গা। এটি ফলাফলের তালিকা থেকে সম্পূর্ণ আলাদা।</p></div></div>
+    ${y ? '<button type="button" class="a-btn se-goto" id="seGoCenters">🏫 পরীক্ষা কেন্দ্র ও কক্ষ <span>›</span></button>' : ''}
     <div class="se-tabs" role="tablist"><button type="button" class="on" role="tab" aria-selected="true">👥 পরীক্ষার্থী</button></div>
     <div class="panel">
       <h3>📅 পরীক্ষার সাল</h3>
@@ -3693,6 +3711,113 @@ document.addEventListener('click', async e => {
     if(!await askConfirm({ title:'এই পরীক্ষার্থীকে মুছে ফেলবেন?', icon:'🗑️', tone:'danger', confirmText:'হ্যাঁ, মুছুন', message:'তালিকা থেকে মুছে যাবে।', items:[seState.year + ' সাল', 'রোল: ' + r.roll + ' • ' + r.name] })) return;
     if(!Store.deleteSeat(seState.year, k)){ Store.reload(); return toast('মুছে ফেলা যায়নি', 'err'); }
     Store.log('সিট প্ল্যান ' + seState.year + ': রোল ' + r.roll + ' (' + r.name + ') মুছে ফেলা হয়েছে'); renderSeat(); toast('মুছে ফেলা হয়েছে');
+  }
+});
+
+/* ---------- পরীক্ষা কেন্দ্র, কক্ষ ও আসন ---------- */
+const ceId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const ceInt = (v, max) => { const n = parseInt(toAscii(String(v)).replace(/[^\d]/g, ''), 10); return Number.isFinite(n) && n >= 0 && n <= max ? n : NaN; };
+const ceSeats = c => c.rooms.reduce((a, r) => a + (r.seats || 0), 0);
+function ceSave(cs, msg){
+  if(!Store.saveSeatCenters(seState.year, cs)){ Store.reload(); toast('সংরক্ষণ করা যায়নি', 'err'); return false; }
+  if(msg) Store.log('সিট প্ল্যান ' + seState.year + ': ' + msg); return true;
+}
+function ceTotals(cs){
+  const rooms = cs.reduce((a, c) => a + c.rooms.length, 0), seats = cs.reduce((a, c) => a + ceSeats(c), 0), st = Store.seatCount(seState.year);
+  return { rooms, seats, st };
+}
+function ceUpdTotals(cs){
+  const t = ceTotals(cs), set = (id, v) => { const e = $(id); if(e) e.innerHTML = v; };
+  set('ceTC', toBn(cs.length)); set('ceTR', toBn(t.rooms)); set('ceTS', toBn(t.seats));
+  const cap = $('ceCap'); if(cap){ cap.className = 'ce-cap ' + (t.seats >= t.st ? 'ok' : 'bad'); cap.textContent = !t.st ? 'এই সালে এখনো পরীক্ষার্থীর তালিকা আপলোড হয়নি।' : t.seats >= t.st ? '✅ মোট আসন (' + toBn(t.seats) + ') পরীক্ষার্থীর (' + toBn(t.st) + ' জন) জন্য যথেষ্ট।' : '⚠️ আসন কম: পরীক্ষার্থী ' + toBn(t.st) + ' জন, কিন্তু আসন ' + toBn(t.seats) + 'টি। আরও ' + toBn(t.st - t.seats) + 'টি আসন লাগবে।'; }
+  cs.forEach(c => set('ceCS-' + c.id, toBn(c.rooms.length) + ' কক্ষ • ' + toBn(ceSeats(c)) + ' আসন'));
+}
+function renderCenters(){
+  const ys = Store.seatYears(), host = $('v-seat'), y = seState.year, cs = Store.seatCenters(y), t = ceTotals(cs);
+  host.innerHTML = `
+    <button type="button" class="a-btn sm" id="ceBack">‹ সিট প্ল্যান ড্যাশবোর্ডে ফিরুন</button>
+    <div class="se-hero" style="margin-top:12px"><div class="se-ic">🏫</div><div><h2>পরীক্ষা কেন্দ্র, কক্ষ ও আসন</h2><p>সাল অনুযায়ী এক বা একাধিক কেন্দ্র যোগ করুন, প্রতিটি কেন্দ্রের কক্ষ সংখ্যা দিন, তারপর প্রতিটি কক্ষের আসন সংখ্যা বসান।</p></div></div>
+    <div class="panel"><h3>📅 পরীক্ষার সাল</h3>
+      <select class="a-in" id="seYear" aria-label="সাল">${ys.map(v => `<option value="${esc(v.label)}"${v.label === y ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></div>
+    <div class="se-stats">
+      <div><b id="ceTC">${toBn(cs.length)}</b><span>কেন্দ্র</span></div>
+      <div><b id="ceTR">${toBn(t.rooms)}</b><span>মোট কক্ষ</span></div>
+      <div><b id="ceTS">${toBn(t.seats)}</b><span>মোট আসন</span></div>
+    </div>
+    <div class="ce-cap" id="ceCap"></div>
+    <div class="panel"><h3>＋ নতুন কেন্দ্র যোগ করুন</h3>
+      <div class="ce-form">
+        <label>কেন্দ্রের নাম<input class="a-in" id="ceName" maxlength="80" placeholder="যেমন: বাহারছড়া উচ্চ বিদ্যালয়"></label>
+        <label>কক্ষ সংখ্যা<input class="a-in" id="ceRooms" inputmode="numeric" maxlength="3" placeholder="যেমন: ৮"></label>
+        <label>প্রতি কক্ষে আসন <small>(ঐচ্ছিক, পরে বদলানো যাবে)</small><input class="a-in" id="ceSeats" inputmode="numeric" maxlength="4" placeholder="যেমন: ৩০"></label>
+        <button type="button" class="a-btn primary" id="ceAdd">＋ কেন্দ্র যোগ করুন</button>
+      </div>
+    </div>
+    ${cs.length ? cs.map(c => `
+    <div class="panel ce-card" data-cid="${c.id}">
+      <div class="ce-head"><input class="a-in" data-cename="${c.id}" value="${esc(c.name)}" maxlength="80" aria-label="কেন্দ্রের নাম"><button type="button" class="a-btn danger sm" data-cedel="${c.id}" aria-label="কেন্দ্র মুছুন">🗑️</button></div>
+      <div class="ce-sum" id="ceCS-${c.id}"></div>
+      <div class="ce-tools">
+        <label>কক্ষ সংখ্যা <input class="a-in" id="ceN-${c.id}" inputmode="numeric" maxlength="3" value="${toBn(c.rooms.length)}"></label><button type="button" class="a-btn sm" data-cenapply="${c.id}">প্রয়োগ</button>
+        <label>সব কক্ষে আসন <input class="a-in" id="ceA-${c.id}" inputmode="numeric" maxlength="4" placeholder="যেমন: ৩০"></label><button type="button" class="a-btn sm" data-ceall="${c.id}">সবগুলোতে বসান</button>
+      </div>
+      <div class="ce-rooms">${c.rooms.length ? c.rooms.map((r, i) => `<div class="ce-room"><input class="a-in" data-cern="${c.id}:${i}" value="${esc(r.name)}" maxlength="40" aria-label="কক্ষের নাম"><label><input class="a-in" data-ceseat="${c.id}:${i}" inputmode="numeric" maxlength="4" value="${toBn(r.seats || 0)}" aria-label="আসন সংখ্যা"><span>আসন</span></label></div>`).join('') : '<p class="hint">কোনো কক্ষ নেই। উপরে কক্ষ সংখ্যা দিয়ে "প্রয়োগ" চাপুন।</p>'}</div>
+    </div>`).join('') : '<div class="panel"><div class="empty"><span class="e">🏫</span><b>এই সালে এখনো কোনো কেন্দ্র নেই</b>উপরের ফর্ম থেকে প্রথম কেন্দ্র যোগ করুন।</div></div>'}`;
+  ceUpdTotals(cs);
+}
+function ceMkRooms(from, n, seats){
+  const out = from.slice(0, n).map(r => ({ ...r }));
+  for(let i = out.length; i < n; i++) out.push({ id:ceId(), name:'কক্ষ ' + toBn(i + 1), seats });
+  return out;
+}
+document.addEventListener('change', e => {
+  const el = e.target; if(!el.dataset || !$('v-seat').contains(el)) return;
+  const d = el.dataset; if(!(d.cename || d.cern || d.ceseat)) return;
+  const cs = Store.seatCenters(seState.year);
+  if(d.cename){
+    const c = cs.find(x => x.id === d.cename); if(!c) return; const v = el.value.trim();
+    if(!v || cs.some(x => x.id !== c.id && x.name === v)){ el.value = c.name; return toast(!v ? 'কেন্দ্রের নাম লিখুন' : 'এই নামে আরেকটি কেন্দ্র আছে', 'err'); }
+    c.name = v; ceSave(cs);
+  } else {
+    const [cid, i] = (d.cern || d.ceseat).split(':'), c = cs.find(x => x.id === cid), r = c && c.rooms[+i]; if(!r) return;
+    if(d.cern){ const v = el.value.trim(); if(!v){ el.value = r.name; return; } r.name = v; }
+    else { const n = ceInt(el.value, 9999); if(isNaN(n)){ el.value = toBn(r.seats || 0); return toast('আসন সংখ্যা সঠিক সংখ্যায় লিখুন', 'err'); } r.seats = n; el.value = toBn(n); }
+    ceSave(cs);
+  }
+  ceUpdTotals(cs);
+});
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button'); if(!t || !$('v-seat').contains(t)) return;
+  const d = t.dataset;
+  if(t.id === 'seGoCenters'){ seState.view = 'centers'; renderSeat(); window.scrollTo(0, 0); }
+  else if(t.id === 'ceBack'){ seState.view = 'main'; renderSeat(); window.scrollTo(0, 0); }
+  else if(t.id === 'ceAdd'){
+    const name = $('ceName').value.trim(), rn = ceInt($('ceRooms').value, 200), sv = $('ceSeats').value.trim() ? ceInt($('ceSeats').value, 9999) : 0;
+    if(!name) return toast('কেন্দ্রের নাম লিখুন', 'err');
+    if(isNaN(rn) || rn < 1) return toast('কক্ষ সংখ্যা ১ বা তার বেশি লিখুন', 'err');
+    if(isNaN(sv)) return toast('আসন সংখ্যা সঠিক সংখ্যায় লিখুন', 'err');
+    const cs = Store.seatCenters(seState.year); if(cs.some(c => c.name === name)) return toast('এই নামে কেন্দ্র আগে থেকেই আছে', 'err');
+    cs.push({ id:ceId(), name, rooms:ceMkRooms([], rn, sv) });
+    if(ceSave(cs, 'নতুন কেন্দ্র «' + name + '» (' + rn + ' কক্ষ)')){ renderCenters(); toast('কেন্দ্র যোগ হয়েছে'); }
+  }
+  else if(d.cedel){
+    const cs = Store.seatCenters(seState.year), c = cs.find(x => x.id === d.cedel); if(!c) return;
+    if(!await askConfirm({ title:'এই কেন্দ্র মুছে ফেলবেন?', icon:'🗑️', tone:'danger', confirmText:'হ্যাঁ, মুছুন', message:'কেন্দ্রের সব কক্ষ ও আসনের তথ্য মুছে যাবে।', items:[seState.year + ' সাল', c.name + ' • ' + toBn(c.rooms.length) + ' কক্ষ'] })) return;
+    if(ceSave(cs.filter(x => x.id !== c.id), 'কেন্দ্র «' + c.name + '» মুছে ফেলা হয়েছে')){ renderCenters(); toast('কেন্দ্র মুছে ফেলা হয়েছে'); }
+  }
+  else if(d.cenapply){
+    const cs = Store.seatCenters(seState.year), c = cs.find(x => x.id === d.cenapply); if(!c) return;
+    const n = ceInt($('ceN-' + c.id).value, 200); if(isNaN(n)) return toast('কক্ষ সংখ্যা সঠিক সংখ্যায় লিখুন', 'err');
+    if(n === c.rooms.length) return;
+    if(n < c.rooms.length && !await askConfirm({ title:'কক্ষ কমাবেন?', icon:'⚠️', tone:'danger', confirmText:'হ্যাঁ, কমান', message:'শেষের ' + toBn(c.rooms.length - n) + 'টি কক্ষ মুছে যাবে।', items:[c.name, toBn(c.rooms.length) + ' → ' + toBn(n) + ' কক্ষ'] })) return;
+    const last = c.rooms.length ? c.rooms[c.rooms.length - 1].seats : 0; c.rooms = ceMkRooms(c.rooms, n, last);
+    if(ceSave(cs, '«' + c.name + '» কক্ষ সংখ্যা ' + n)){ renderCenters(); toast('কক্ষ সংখ্যা বদলেছে'); }
+  }
+  else if(d.ceall){
+    const cs = Store.seatCenters(seState.year), c = cs.find(x => x.id === d.ceall); if(!c) return;
+    const n = ceInt($('ceA-' + c.id).value, 9999); if(isNaN(n)) return toast('আসন সংখ্যা সঠিক সংখ্যায় লিখুন', 'err');
+    c.rooms.forEach(r => { r.seats = n; });
+    if(ceSave(cs, '«' + c.name + '» সব কক্ষে আসন ' + n)){ renderCenters(); toast('সব কক্ষে আসন বসেছে'); }
   }
 });
 
