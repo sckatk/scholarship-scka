@@ -361,7 +361,8 @@ footer .copy{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,
 #adminApp .pl-room summary{padding:12px 0;font-weight:700;cursor:pointer}#adminApp .pl-room summary small{font-weight:400;color:var(--emerald-800)}
 #adminApp .pl-bench{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
 #adminApp .pl-bench>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-#adminApp .pl-bench span{background:var(--emerald-50);border-radius:8px;padding:4px 8px}#adminApp .pl-bench i{font-style:normal;color:var(--emerald-800);font-size:.8rem}
+#adminApp .pl-bench span{background:var(--emerald-50);border-radius:8px;padding:4px 8px}#adminApp .pl-bench em{font-style:normal;font-weight:700;color:var(--emerald-800)}
+#adminApp .pl-bench i{font-style:normal;color:var(--emerald-800);font-size:.8rem}
 #adminApp .se-tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
 #adminApp .se-tabs button{border:0;font:inherit;font-weight:700;padding:9px 16px;border-radius:99px;background:#eef3f0;color:var(--emerald-800);white-space:nowrap}
 #adminApp .se-tabs button.on{background:var(--emerald-700);color:#fff}
@@ -3859,6 +3860,44 @@ function plCheck(plan, list){
   Object.entries(plan.a).forEach(([roll, v]) => { const k = v[0] + '|' + v[1] + '|' + v[2], c = cls[roll]; (seen[k] = seen[k] || new Set()); if(seen[k].has(c)) bad++; seen[k].add(c); });
   return bad;
 }
+const plLbl = (pos, bs) => bs === 2 ? (pos === 1 ? 'বাম' : 'ডান') : bs === 3 ? ['বাম', 'মাঝে', 'ডান'][pos - 1] : toBn(pos) + 'ম আসন';
+function plRooms(y){
+  const plan = Store.seatPlan(y), cs = Store.seatCenters(y), rec = {}; Store.seatList(y).forEach(({ r }) => { rec[r.roll] = r; });
+  if(!plan) return [];
+  const by = {}; Object.entries(plan.a).forEach(([roll, v]) => { if(rec[roll]) ((by[v[0] + '|' + v[1]] = by[v[0] + '|' + v[1]] || {})[v[2]] = by[v[0] + '|' + v[1]][v[2]] || {})[v[3]] = rec[roll]; });
+  const out = [];
+  cs.forEach(c => c.rooms.forEach(r => { const bm = by[c.id + '|' + r.id]; if(!bm) return;
+    const bn = Object.keys(bm).map(Number).sort((a, b) => a - b);
+    const benches = bn.map(b => { const k = Math.min(plan.bs, (r.seats || 0) - (b - 1) * plan.bs), slots = []; for(let i = 1; i <= k; i++) slots.push(bm[b][i] || null); return { b, slots }; });
+    out.push({ cid:c.id, centre:c.name, room:r.name, bs:plan.bs, benches, count:benches.reduce((a, x) => a + x.slots.filter(Boolean).length, 0) });
+  }));
+  return out;
+}
+function plPrint(rooms, y){
+  if(!rooms.length) return toast('প্রিন্ট করার মতো কক্ষ নেই', 'err');
+  const pages = rooms.map(R => {
+    const cc = {}; R.benches.forEach(x => x.slots.forEach(r => { if(r) cc[r.cls] = (cc[r.cls] || 0) + 1; }));
+    const heads = Array.from({ length:R.bs }, (_, i) => `<th>${esc(plLbl(i + 1, R.bs))} পাশ</th>`).join('');
+    const rows = R.benches.map(x => `<tr><td class="b">${toBn(x.b)}</td>${Array.from({ length:R.bs }, (_, i) => { const r = x.slots[i]; return r === undefined ? '<td class="n">—</td>' : r ? `<td><b>রোল ${esc(toBn(r.roll))}</b><br>${esc(r.name)}<br><small>${esc(r.cls)}</small></td>` : '<td class="n">ফাঁকা</td>'; }).join('')}</tr>`).join('');
+    return `<section><div class="h"><div class="o">স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন</div><div class="e">এস.সি.কে.এ. মেধা অন্বেষণ বৃত্তি পরীক্ষা – ${esc(y)}</div></div>
+    <div class="m"><span>কেন্দ্র: <b>${esc(R.centre)}</b></span><span>কক্ষ: <b>${esc(R.room)}</b></span><span>মোট পরীক্ষার্থী: <b>${toBn(R.count)} জন</b></span></div>
+    <div class="m s">${Object.keys(cc).sort((a, b) => a.localeCompare(b, 'bn')).map(k => esc(k) + ': ' + toBn(cc[k]) + ' জন').join(' • ')}</div>
+    <table><thead><tr><th class="b">বেঞ্চ</th>${heads}</tr></thead><tbody>${rows}</tbody></table>
+    <div class="sg"><span>কক্ষ পরিদর্শকের স্বাক্ষর</span><span>কেন্দ্র প্রধানের স্বাক্ষর</span></div></section>`;
+  }).join('');
+  const html = `<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>সিট প্ল্যান ${esc(y)}</title><style>
+  @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:'Noto Sans Bengali','Hind Siliguri','Kalpurush',sans-serif;margin:0;color:#111}
+  section{page-break-after:always;padding:2mm}section:last-child{page-break-after:auto}
+  .h{text-align:center;border-bottom:2px solid #064e3b;padding-bottom:6px;margin-bottom:8px}.o{font-size:18px;font-weight:700;color:#064e3b}.e{font-size:14px}
+  .m{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin:6px 0}.m.s{font-size:12px;color:#444;justify-content:flex-start}
+  table{width:100%;border-collapse:collapse;margin-top:6px}th,td{border:1px solid #333;padding:5px 7px;font-size:13px;text-align:center;vertical-align:middle}
+  th{background:#e8f3ee}td.b,th.b{width:48px;font-weight:700}td.n{color:#999}td small{color:#555}tr{page-break-inside:avoid}
+  .sg{display:flex;justify-content:space-between;margin-top:36px;font-size:13px}.sg span{border-top:1px solid #333;padding-top:4px;min-width:160px;text-align:center}
+  </style></head><body>${pages}</body></html>`;
+  let f = document.getElementById('plPrintFrame'); if(f) f.remove();
+  f = document.createElement('iframe'); f.id = 'plPrintFrame'; f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
+  f.srcdoc = html; f.onload = () => { try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(e){ toast('প্রিন্ট খোলা যায়নি', 'err'); } };
+}
 function renderPlan(){
   const ys = Store.seatYears(), host = $('v-seat'), y = seState.year, cs = Store.seatCenters(y), list = Store.seatList(y), plan = Store.seatPlan(y);
   const bs = seState.bs || (plan && plan.bs) || 2, seats = cs.reduce((a, c) => a + ceSeats(c), 0);
@@ -3879,7 +3918,7 @@ function renderPlan(){
     <div class="ce-cap ${bad ? 'bad' : 'ok'}">${bad ? '⚠️ ' + toBn(bad) + 'টি জায়গায় একই বেঞ্চে একই শ্রেণি আছে' : '✅ কোনো বেঞ্চে একই শ্রেণির দুজন নেই'}</div>
     ${unList.length ? `<div class="panel"><h3>⚠️ আসন পায়নি (${toBn(unList.length)} জন)</h3><p class="hint">আসন সংখ্যা কম, অথবা একই শ্রেণির শিক্ষার্থী বেশি হওয়ায় একই বেঞ্চে বসানো যায়নি। আসন বা কক্ষ বাড়ান, তারপর আবার তৈরি করুন।</p><div class="pl-un">${unList.slice(0, 60).map(({ r }) => `<span>${esc(r.roll)} ${esc(r.name)} (${esc(r.cls)})</span>`).join('')}${unList.length > 60 ? '<span>…আরও ' + toBn(unList.length - 60) + ' জন</span>' : ''}</div></div>` : ''}
     <div class="panel"><h3>🔎 শিক্ষার্থীর সিট খুঁজুন</h3><input class="a-in" id="plQ" type="search" placeholder="নাম বা রোল"><div id="plFind"></div></div>
-    ${cs.map(c => { const rooms = c.rooms.filter(r => byRoom[c.id + '|' + r.id]); if(!rooms.length) return ''; return `<div class="panel"><h3>🏫 ${esc(c.name)}</h3>${rooms.map(r => { const bm = byRoom[c.id + '|' + r.id], bn = Object.keys(bm).map(Number).sort((a, b) => a - b), cnt = bn.reduce((a, b) => a + bm[b].length, 0); return `<details class="pl-room"><summary>${esc(r.name)} <small>${toBn(cnt)} জন • ${toBn(bn.length)} বেঞ্চ</small></summary>${bn.map(b => `<div class="pl-bench"><b>বেঞ্চ ${toBn(b)}</b><div>${bm[b].sort((p, q2) => p.pos - q2.pos).map(x => `<span>${esc(x.r.roll)} ${esc(x.r.name)} <i>${esc(x.r.cls)}</i></span>`).join('')}</div></div>`).join('')}</details>`; }).join('')}</div>`; }).join('')}`;
+    ${(() => { const RS = plRooms(y), by = {}; RS.forEach(R => { (by[R.cid] = by[R.cid] || []).push(R); }); return `<div class="panel"><button type="button" class="a-btn primary" id="plPrintAll">🖨️ সব কক্ষ প্রিন্ট করুন</button></div>` + cs.filter(c => by[c.id]).map(c => `<div class="panel"><h3>🏫 ${esc(c.name)}</h3><button type="button" class="a-btn sm" data-plprc="${c.id}" style="margin-bottom:10px">🖨️ এই কেন্দ্রের সব কক্ষ</button>${by[c.id].map(R => `<details class="pl-room"><summary>${esc(R.room)} <small>${toBn(R.count)} জন • ${toBn(R.benches.length)} বেঞ্চ</small></summary><button type="button" class="a-btn sm" data-plpr="${c.id}|${esc(R.room)}" style="margin:0 0 8px">🖨️ প্রিন্ট</button>${R.benches.map(x => `<div class="pl-bench"><b>বেঞ্চ ${toBn(x.b)}</b><div>${x.slots.map((r, i) => `<span><em>${esc(plLbl(i + 1, R.bs))}:</em> ${r ? esc(r.roll) + ' ' + esc(r.name) + ' <i>' + esc(r.cls) + '</i>' : '<i>ফাঁকা</i>'}</span>`).join('')}</div></div>`).join('')}</details>`).join('')}</div>`).join(''); })()}`;
   }
   host.innerHTML = `
     <button type="button" class="a-btn sm" id="plBack">‹ সিট প্ল্যান ড্যাশবোর্ডে ফিরুন</button>
@@ -3907,6 +3946,9 @@ document.addEventListener('change', e => {
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if(!t || !$('v-seat').contains(t)) return;
   if(t.id === 'seGoPlan'){ seState.view = 'plan'; renderSeat(); window.scrollTo(0, 0); }
+  else if(t.id === 'plPrintAll') plPrint(plRooms(seState.year), seState.year);
+  else if(t.dataset.plprc) plPrint(plRooms(seState.year).filter(R => R.cid === t.dataset.plprc), seState.year);
+  else if(t.dataset.plpr){ const [cid, nm] = t.dataset.plpr.split('|'); plPrint(plRooms(seState.year).filter(R => R.cid === cid && R.room === nm), seState.year); }
   else if(t.id === 'plBack'){ seState.view = 'main'; renderSeat(); window.scrollTo(0, 0); }
   else if(t.id === 'plClear'){
     if(!await askConfirm({ title:'সিট প্ল্যান মুছবেন?', icon:'🗑️', tone:'danger', confirmText:'হ্যাঁ, মুছুন', message:'তৈরি করা সিট বণ্টন মুছে যাবে। পরীক্ষার্থী ও কেন্দ্রের তথ্য থাকবে।', items:[seState.year + ' সাল'] })) return;
