@@ -353,9 +353,12 @@ footer .copy{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,
 #adminApp .ce-sum{margin:8px 0;color:var(--emerald-800);font-weight:600;font-size:.9rem}
 #adminApp .ce-tools{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:12px}
 #adminApp .ce-rooms{display:grid;gap:8px}
-#adminApp .ce-room{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center}
+#adminApp .ce-room{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px}
+#adminApp .ce-room>input{grid-column:1/-1}
+#adminApp .ce-room label.blk{grid-column:1/-1;display:grid;gap:4px;font-size:.85rem}#adminApp .ce-room label.blk .a-in{width:100%;text-align:left}
+#adminApp .ce-hint{grid-column:1/-1;font-size:.82rem;color:var(--emerald-800);font-weight:600}
 #adminApp .ce-room label{display:flex;align-items:center;gap:6px;font-size:.85rem}
-#adminApp .ce-room label .a-in{width:84px;text-align:center}
+#adminApp .ce-room label .a-in{width:72px;text-align:center}
 #adminApp .pl-un{display:flex;flex-wrap:wrap;gap:6px}#adminApp .pl-un span{background:#fff4e0;border-radius:8px;padding:4px 8px;font-size:.85rem}
 #adminApp .pl-room{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;padding:0 12px}
 #adminApp .pl-room summary{padding:12px 0;font-weight:700;cursor:pointer}#adminApp .pl-room summary small{font-weight:400;color:var(--emerald-800)}
@@ -3740,6 +3743,8 @@ function ceUpdTotals(cs){
   const t = ceTotals(cs), set = (id, v) => { const e = $(id); if(e) e.innerHTML = v; };
   set('ceTC', toBn(cs.length)); set('ceTR', toBn(t.rooms)); set('ceTS', toBn(t.seats));
   const cap = $('ceCap'); if(cap){ cap.className = 'ce-cap ' + (t.seats >= t.st ? 'ok' : 'bad'); cap.textContent = !t.st ? 'এই সালে এখনো পরীক্ষার্থীর তালিকা আপলোড হয়নি।' : t.seats >= t.st ? '✅ মোট আসন (' + toBn(t.seats) + ') পরীক্ষার্থীর (' + toBn(t.st) + ' জন) জন্য যথেষ্ট।' : '⚠️ আসন কম: পরীক্ষার্থী ' + toBn(t.st) + ' জন, কিন্তু আসন ' + toBn(t.seats) + 'টি। আরও ' + toBn(t.st - t.seats) + 'টি আসন লাগবে।'; }
+  cs.forEach(c => c.rooms.forEach((r, i) => { const rb = r.bs || seState.bs || 2, nb = Math.ceil((r.seats || 0) / rb), sum = (r.blocks || []).reduce((a, b) => a + b, 0);
+    set('ceH-' + c.id + '-' + i, 'প্রায় ' + toBn(nb) + 'টি বেঞ্চ' + (r.blocks && r.blocks.length ? ' • ব্লকে মোট ' + toBn(sum) + 'টি' + (sum === nb ? ' ✅' : ' ⚠️ (বেঞ্চের সংখ্যার সাথে মেলেনি)') : '')); }));
   cs.forEach(c => set('ceCS-' + c.id, toBn(c.rooms.length) + ' কক্ষ • ' + toBn(ceSeats(c)) + ' আসন'));
 }
 function renderCenters(){
@@ -3770,27 +3775,34 @@ function renderCenters(){
       <div class="ce-tools">
         <label>কক্ষ সংখ্যা <input class="a-in" id="ceN-${c.id}" inputmode="numeric" maxlength="3" value="${toBn(c.rooms.length)}"></label><button type="button" class="a-btn sm" data-cenapply="${c.id}">প্রয়োগ</button>
         <label>সব কক্ষে আসন <input class="a-in" id="ceA-${c.id}" inputmode="numeric" maxlength="4" placeholder="যেমন: ৩০"></label><button type="button" class="a-btn sm" data-ceall="${c.id}">সবগুলোতে বসান</button>
+        <label>সব কক্ষে জন/বেঞ্চ <input class="a-in" id="ceB-${c.id}" inputmode="numeric" maxlength="2" placeholder="২ থেকে ১০"></label><button type="button" class="a-btn sm" data-cebsall="${c.id}">সবগুলোতে বসান</button>
       </div>
-      <div class="ce-rooms">${c.rooms.length ? c.rooms.map((r, i) => `<div class="ce-room"><input class="a-in" data-cern="${c.id}:${i}" value="${esc(r.name)}" maxlength="40" aria-label="কক্ষের নাম"><label><input class="a-in" data-ceseat="${c.id}:${i}" inputmode="numeric" maxlength="4" value="${toBn(r.seats || 0)}" aria-label="আসন সংখ্যা"><span>আসন</span></label></div>`).join('') : '<p class="hint">কোনো কক্ষ নেই। উপরে কক্ষ সংখ্যা দিয়ে "প্রয়োগ" চাপুন।</p>'}</div>
+      <div class="ce-rooms">${c.rooms.length ? c.rooms.map((r, i) => `<div class="ce-room"><input class="a-in" data-cern="${c.id}:${i}" value="${esc(r.name)}" maxlength="40" aria-label="কক্ষের নাম"><label><input class="a-in" data-ceseat="${c.id}:${i}" inputmode="numeric" maxlength="4" value="${toBn(r.seats || 0)}" aria-label="আসন সংখ্যা"><span>আসন</span></label><label><input class="a-in" data-cebs="${c.id}:${i}" inputmode="numeric" maxlength="2" value="${r.bs ? toBn(r.bs) : ''}" placeholder="ডিফল্ট" aria-label="এক বেঞ্চে কতজন"><span>জন/বেঞ্চ</span></label><label class="blk"><span>ব্লক অনুযায়ী বেঞ্চ <small>(কমা দিয়ে, যেমন ৭,৮,৮ — ফাঁকা রাখলে ৮টি করে)</small></span><input class="a-in" data-ceblk="${c.id}:${i}" value="${(r.blocks || []).map(toBn).join(', ')}" placeholder="যেমন: ৭, ৮, ৮"></label><div class="ce-hint" id="ceH-${c.id}-${i}"></div></div>`).join('') : '<p class="hint">কোনো কক্ষ নেই। উপরে কক্ষ সংখ্যা দিয়ে "প্রয়োগ" চাপুন।</p>'}</div>
     </div>`).join('') : '<div class="panel"><div class="empty"><span class="e">🏫</span><b>এই সালে এখনো কোনো কেন্দ্র নেই</b>উপরের ফর্ম থেকে প্রথম কেন্দ্র যোগ করুন।</div></div>'}`;
   ceUpdTotals(cs);
 }
 function ceMkRooms(from, n, seats){
-  const out = from.slice(0, n).map(r => ({ ...r }));
-  for(let i = out.length; i < n; i++) out.push({ id:ceId(), name:'কক্ষ ' + toBn(i + 1), seats });
+  const out = from.slice(0, n).map(r => ({ ...r })), lb = out.length && out[out.length - 1].bs;
+  for(let i = out.length; i < n; i++) out.push({ id:ceId(), name:'কক্ষ ' + toBn(i + 1), seats, ...(lb ? { bs:lb } : {}) });
   return out;
 }
 document.addEventListener('change', e => {
   const el = e.target; if(!el.dataset || !$('v-seat').contains(el)) return;
-  const d = el.dataset; if(!(d.cename || d.cern || d.ceseat)) return;
+  const d = el.dataset; if(!(d.cename || d.cern || d.ceseat || d.cebs || d.ceblk)) return;
   const cs = Store.seatCenters(seState.year);
   if(d.cename){
     const c = cs.find(x => x.id === d.cename); if(!c) return; const v = el.value.trim();
     if(!v || cs.some(x => x.id !== c.id && x.name === v)){ el.value = c.name; return toast(!v ? 'কেন্দ্রের নাম লিখুন' : 'এই নামে আরেকটি কেন্দ্র আছে', 'err'); }
     c.name = v; ceSave(cs);
   } else {
-    const [cid, i] = (d.cern || d.ceseat).split(':'), c = cs.find(x => x.id === cid), r = c && c.rooms[+i]; if(!r) return;
-    if(d.cern){ const v = el.value.trim(); if(!v){ el.value = r.name; return; } r.name = v; }
+    const [cid, i] = (d.cern || d.ceseat || d.cebs || d.ceblk).split(':'), c = cs.find(x => x.id === cid), r = c && c.rooms[+i]; if(!r) return;
+    if(d.ceblk){ const raw = toAscii(el.value).trim();
+      if(!raw) delete r.blocks;
+      else { const parts = raw.split(/[\s,،;]+/).filter(Boolean).map(x => /^\d{1,3}$/.test(x) ? +x : NaN);
+        if(!parts.length || parts.some(n => isNaN(n) || n < 1)){ el.value = (r.blocks || []).map(toBn).join(', '); return toast('ব্লকের বেঞ্চ সংখ্যা কমা দিয়ে সঠিক সংখ্যায় লিখুন, যেমন ৭, ৮, ৮', 'err'); }
+        r.blocks = parts; el.value = parts.map(toBn).join(', '); } }
+    else if(d.cebs){ const raw = el.value.trim(); if(!raw) delete r.bs; else { const n = ceInt(raw, 10); if(isNaN(n) || n < 2){ el.value = r.bs ? toBn(r.bs) : ''; return toast('এক বেঞ্চে ২ থেকে ১০ জন হতে পারে', 'err'); } r.bs = n; el.value = toBn(n); } }
+    else if(d.cern){ const v = el.value.trim(); if(!v){ el.value = r.name; return; } r.name = v; }
     else { const n = ceInt(el.value, 9999); if(isNaN(n)){ el.value = toBn(r.seats || 0); return toast('আসন সংখ্যা সঠিক সংখ্যায় লিখুন', 'err'); } r.seats = n; el.value = toBn(n); }
     ceSave(cs);
   }
@@ -3823,6 +3835,12 @@ document.addEventListener('click', async e => {
     const last = c.rooms.length ? c.rooms[c.rooms.length - 1].seats : 0; c.rooms = ceMkRooms(c.rooms, n, last);
     if(ceSave(cs, '«' + c.name + '» কক্ষ সংখ্যা ' + n)){ renderCenters(); toast('কক্ষ সংখ্যা বদলেছে'); }
   }
+  else if(d.cebsall){
+    const cs = Store.seatCenters(seState.year), c = cs.find(x => x.id === d.cebsall); if(!c) return;
+    const n = ceInt($('ceB-' + c.id).value, 10); if(isNaN(n) || n < 2) return toast('এক বেঞ্চে ২ থেকে ১০ জন হতে পারে', 'err');
+    c.rooms.forEach(r => { r.bs = n; });
+    if(ceSave(cs, '«' + c.name + '» সব কক্ষে বেঞ্চে ' + n + ' জন')){ renderCenters(); toast('সব কক্ষে বসেছে'); }
+  }
   else if(d.ceall){
     const cs = Store.seatCenters(seState.year), c = cs.find(x => x.id === d.ceall); if(!c) return;
     const n = ceInt($('ceA-' + c.id).value, 9999); if(isNaN(n)) return toast('আসন সংখ্যা সঠিক সংখ্যায় লিখুন', 'err');
@@ -3834,17 +3852,18 @@ document.addEventListener('click', async e => {
 /* ---------- বেঞ্চ ও স্বয়ংক্রিয় সিট বণ্টন ---------- */
 const plHash = str => { let h = 5381; for(let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return String(h >>> 0); };
 function plSig(y, bs){
-  const st = Store.seatList(y).map(({ r }) => r.roll + ':' + r.cls).sort().join(','), cs = Store.seatCenters(y).map(c => c.id + '[' + c.rooms.map(r => r.id + '=' + r.seats).join(',') + ']').join(';');
+  const st = Store.seatList(y).map(({ r }) => r.roll + ':' + r.cls).sort().join(','), cs = Store.seatCenters(y).map(c => c.id + '[' + c.rooms.map(r => r.id + '=' + r.seats + '/' + (r.bs || '')).join(',') + ']').join(';');
   return plHash(st + '|' + cs + '|' + bs);
 }
 /* নিয়ম: এক বেঞ্চে একই শ্রেণির দুজন নয়। প্রতি বেঞ্চে সবচেয়ে বেশি বাকি থাকা আলাদা আলাদা শ্রেণি থেকে একজন করে নেওয়া হয়। */
 function seArrange(list, cs, bs){
   const q = {}; list.slice().sort(seSort).forEach(({ r }) => { (q[r.cls] = q[r.cls] || []).push(r); });
   const a = {}; let left = list.length, benches = 0;
+  const rbs = {};
   for(const c of cs) for(const room of c.rooms){
-    let rem = room.seats || 0, b = 0;
+    let rem = room.seats || 0, b = 0; const rb = room.bs || bs; rbs[room.id] = rb;
     while(rem > 0 && left > 0){
-      const k = Math.min(bs, rem);
+      const k = Math.min(rb, rem);
       const cls = Object.keys(q).filter(x => q[x].length).sort((x, y) => q[y].length - q[x].length || x.localeCompare(y, 'bn')).slice(0, k);
       if(!cls.length) break;
       b++; benches++;
@@ -3853,7 +3872,7 @@ function seArrange(list, cs, bs){
     }
   }
   const un = []; Object.keys(q).forEach(x => q[x].forEach(r => un.push(r.roll)));
-  return { a, un, benches };
+  return { a, un, benches, rbs };
 }
 function plCheck(plan, list){
   const cls = {}; list.forEach(({ r }) => { cls[r.roll] = r.cls; }); const seen = {}; let bad = 0;
@@ -3868,31 +3887,57 @@ function plRooms(y){
   const out = [];
   cs.forEach(c => c.rooms.forEach(r => { const bm = by[c.id + '|' + r.id]; if(!bm) return;
     const bn = Object.keys(bm).map(Number).sort((a, b) => a - b);
-    const benches = bn.map(b => { const k = Math.min(plan.bs, (r.seats || 0) - (b - 1) * plan.bs), slots = []; for(let i = 1; i <= k; i++) slots.push(bm[b][i] || null); return { b, slots }; });
-    out.push({ cid:c.id, centre:c.name, room:r.name, bs:plan.bs, benches, count:benches.reduce((a, x) => a + x.slots.filter(Boolean).length, 0) });
+    const benches = bn.map(b => { const rb = (plan.rbs || {})[r.id] || plan.bs, k = Math.min(rb, (r.seats || 0) - (b - 1) * rb), slots = []; for(let i = 1; i <= k; i++) slots.push(bm[b][i] || null); return { b, slots }; });
+    out.push({ blocks:r.blocks || null, cid:c.id, centre:c.name, room:r.name, bs:(plan.rbs || {})[r.id] || plan.bs, benches, count:benches.reduce((a, x) => a + x.slots.filter(Boolean).length, 0) });
   }));
   return out;
 }
+const PL_ORD = ['প্লে','নার্সারি','কেজি','প্রথম','দ্বিতীয়','তৃতীয়','চতুর্থ','পঞ্চম','ষষ্ঠ','সপ্তম','অষ্টম','নবম','দশম'], plClsCmp = (a, b) => { const f = x => { const i = PL_ORD.findIndex(o => String(x).includes(o)); return i < 0 ? 99 : i; }; return f(a) - f(b) || String(a).localeCompare(String(b), 'bn'); };
+const PL_COL = [['#fff1e0','#f08a24','#b45309'],['#e3f8ec','#2fa86a','#166b43'],['#e4efff','#3b82f6','#1d4ed8'],['#f1e8ff','#8b5cf6','#6d28d9'],['#ffe6ef','#ec4899','#be185d'],['#dcf7f6','#14b8a6','#0f766e'],['#fff7d6','#d4a017','#8a6508'],['#fde4e4','#ef4444','#b91c1c']];
 function plPrint(rooms, y){
   if(!rooms.length) return toast('প্রিন্ট করার মতো কক্ষ নেই', 'err');
-  const pages = rooms.map(R => {
-    const cc = {}; R.benches.forEach(x => x.slots.forEach(r => { if(r) cc[r.cls] = (cc[r.cls] || 0) + 1; }));
-    const heads = Array.from({ length:R.bs }, (_, i) => `<th>${esc(plLbl(i + 1, R.bs))} পাশ</th>`).join('');
-    const rows = R.benches.map(x => `<tr><td class="b">${toBn(x.b)}</td>${Array.from({ length:R.bs }, (_, i) => { const r = x.slots[i]; return r === undefined ? '<td class="n">—</td>' : r ? `<td><b>রোল ${esc(toBn(r.roll))}</b><br>${esc(r.name)}<br><small>${esc(r.cls)}</small></td>` : '<td class="n">ফাঁকা</td>'; }).join('')}</tr>`).join('');
-    return `<section><div class="h"><div class="o">স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন</div><div class="e">এস.সি.কে.এ. মেধা অন্বেষণ বৃত্তি পরীক্ষা – ${esc(y)}</div></div>
-    <div class="m"><span>কেন্দ্র: <b>${esc(R.centre)}</b></span><span>কক্ষ: <b>${esc(R.room)}</b></span><span>মোট পরীক্ষার্থী: <b>${toBn(R.count)} জন</b></span></div>
-    <div class="m s">${Object.keys(cc).sort((a, b) => a.localeCompare(b, 'bn')).map(k => esc(k) + ': ' + toBn(cc[k]) + ' জন').join(' • ')}</div>
-    <table><thead><tr><th class="b">বেঞ্চ</th>${heads}</tr></thead><tbody>${rows}</tbody></table>
-    <div class="sg"><span>কক্ষ পরিদর্শকের স্বাক্ষর</span><span>কেন্দ্র প্রধানের স্বাক্ষর</span></div></section>`;
+  const allCls = [...new Set(Store.seatList(y).map(({ r }) => r.cls))].sort(plClsCmp), col = c => PL_COL[allCls.indexOf(c) % PL_COL.length];
+  const st = c => { const x = col(c); return `--bg:${x[0]};--bd:${x[1]};--fg:${x[2]}`; };
+  const N = rooms.length, BLK = 8;
+  const pages = rooms.map((R, pi) => {
+    const cc = {}; R.benches.forEach(x => x.slots.forEach(r => { if(r){ const o = cc[r.cls] = cc[r.cls] || { n:0, lo:Infinity, hi:-Infinity }; const v = parseFloat(r.roll); o.n++; o.lo = Math.min(o.lo, v); o.hi = Math.max(o.hi, v); } }));
+    const keys = Object.keys(cc).sort(plClsCmp);
+    const cards = keys.map(k => `<div class="cd" style="${st(k)}"><div><b>${esc(k)} শ্রেণি</b><span>রোল ${toBn(cc[k].lo)}–${toBn(cc[k].hi)}</span></div><em>${toBn(cc[k].n)}<small>জন</small></em></div>`).join('')
+      + `<div class="cd tot"><div><b>মোট পরীক্ষার্থী</b><span>${toBn(keys.length)}টি শ্রেণি • বেঞ্চে ${toBn(R.bs)} জন</span></div><em>${toBn(R.count)}<small>জন</small></em></div>`;
+    const blocks = []; let at = 0;
+    (R.blocks && R.blocks.length ? R.blocks : []).forEach(n => { if(at < R.benches.length){ blocks.push(R.benches.slice(at, at + n)); at += n; } });
+    while(at < R.benches.length){ blocks.push(R.benches.slice(at, at + BLK)); at += BLK; }
+    const bl = blocks.map((bb, bi) => `<div class="bk" style="--n:${R.bs}"><div class="bt">ব্লক ${toBn(bi + 1)} <small>(বেঞ্চ ${toBn(bb[0].b)}–${toBn(bb[bb.length - 1].b)})</small></div>
+      <div class="gr"><span></span>${Array.from({ length:R.bs }, (_, i) => `<span class="ph">${esc(plLbl(i + 1, R.bs))}</span>`).join('')}
+      ${bb.map(x => `<i>${toBn(x.b)}</i>` + x.slots.map(r => r ? `<div class="c" style="${st(r.cls)}"><b>${esc(toBn(r.roll))}</b><small>${esc(r.name)}</small></div>` : '<div class="c e">ফাঁকা</div>').join('')).join('')}</div></div>`).join('');
+    return `<section><div class="top"><div class="lg">SCKA</div><div class="tt"><h1>স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন</h1><p>এস.সি.কে.এ. মেধা অন্বেষণ বৃত্তি পরীক্ষা – ${esc(y)} • পরীক্ষার্থীদের আসন বিন্যাস</p></div><div class="pl">${esc(R.centre)}</div><div class="pl g">${esc(R.room)}</div></div>
+    <div class="stripe"><u></u><u></u><u></u><u></u></div>
+    <div class="cds">${cards}</div><div class="bks">${bl}</div>
+    <div class="ft"><span>স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন • বাহারছড়া, টেকনাফ</span><b>${esc(R.centre)} • ${esc(R.room)}</b><span>পৃষ্ঠা ${toBn(pi + 1)}/${toBn(N)}</span></div></section>`;
   }).join('');
-  const html = `<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>সিট প্ল্যান ${esc(y)}</title><style>
-  @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:'Noto Sans Bengali','Hind Siliguri','Kalpurush',sans-serif;margin:0;color:#111}
-  section{page-break-after:always;padding:2mm}section:last-child{page-break-after:auto}
-  .h{text-align:center;border-bottom:2px solid #064e3b;padding-bottom:6px;margin-bottom:8px}.o{font-size:18px;font-weight:700;color:#064e3b}.e{font-size:14px}
-  .m{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin:6px 0}.m.s{font-size:12px;color:#444;justify-content:flex-start}
-  table{width:100%;border-collapse:collapse;margin-top:6px}th,td{border:1px solid #333;padding:5px 7px;font-size:13px;text-align:center;vertical-align:middle}
-  th{background:#e8f3ee}td.b,th.b{width:48px;font-weight:700}td.n{color:#999}td small{color:#555}tr{page-break-inside:avoid}
-  .sg{display:flex;justify-content:space-between;margin-top:36px;font-size:13px}.sg span{border-top:1px solid #333;padding-top:4px;min-width:160px;text-align:center}
+  const html = `<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>আসন বিন্যাস ${esc(y)}</title><style>
+  @page{size:A4 landscape;margin:7mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:'Noto Sans Bengali','Hind Siliguri','Kalpurush',sans-serif;margin:0;color:#10231b;background:#fff}
+  section{page-break-after:always;padding:0;min-height:195mm;display:flex;flex-direction:column}section:last-child{page-break-after:auto}
+  .top{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#033d2e,#0a6b4f);color:#fff;padding:12px 18px;border-radius:14px 14px 0 0}
+  .lg{width:58px;height:58px;border-radius:14px;background:#fff;color:#065f46;font-weight:800;font-size:15px;display:grid;place-items:center;border:3px solid #e6bf55;flex:none}
+  .tt{flex:1;min-width:0}.tt h1{margin:0;font-size:24px;line-height:1.2;letter-spacing:.2px}.tt p{margin:3px 0 0;font-size:13px;opacity:.92}
+  .pl{background:#fff;color:#065f46;font-weight:800;font-size:17px;padding:9px 18px;border-radius:99px;max-width:260px;text-align:center}.pl.g{background:#f6d365;color:#4a3300;font-size:22px}
+  .stripe{display:flex;height:6px}.stripe u{flex:1}.stripe u:nth-child(1){background:#f08a24}.stripe u:nth-child(2){background:#3b82f6}.stripe u:nth-child(3){background:#2fa86a}.stripe u:nth-child(4){background:#ec4899}
+  .cds{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}
+  .cd{flex:1;min-width:150px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;border-radius:12px;background:var(--bg);border:1.5px solid var(--bd);border-left:7px solid var(--bd);color:var(--fg)}
+  .cd b{display:block;font-size:15px}.cd span{font-size:12.5px;font-weight:600}.cd em{font-style:normal;font-size:30px;font-weight:800;line-height:1;text-align:center}.cd em small{display:block;font-size:10px;font-weight:500}
+  .cd.tot{background:#064e3b;border-color:#064e3b;color:#fff}
+  .bks{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;flex:1}
+  .bk{border:1.5px solid #c9d6d0;border-radius:12px;padding:8px 10px 10px;flex:0 0 auto;width:calc(var(--n)*86px + 34px);max-width:100%;break-inside:avoid}
+  .bt{font-size:12.5px;font-weight:700;text-align:center;margin-bottom:6px}.bt small{font-weight:500;color:#566}
+  .gr{display:grid;grid-template-columns:16px repeat(var(--n),1fr);gap:5px;align-items:stretch}
+  .ph{background:#0a6b4f;color:#fff;font-size:11.5px;font-weight:700;text-align:center;border-radius:6px;padding:3px 0}
+  .gr i{font-style:normal;font-size:10px;color:#667;align-self:center}
+  .c{background:var(--bg);border:1.5px solid var(--bd);color:var(--fg);border-radius:8px;text-align:center;padding:3px 2px;min-height:38px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+  .c b{font-size:19px;line-height:1.1}.c small{font-size:8.5px;line-height:1.1;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .c.e{background:#fff;border:1.5px dashed #bbb;color:#aaa;font-size:11px}
+  .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #ccd;margin-top:10px;padding-top:6px;font-size:11px;color:#556}.ft b{color:#8b3a00}
   </style></head><body>${pages}</body></html>`;
   let f = document.getElementById('plPrintFrame'); if(f) f.remove();
   f = document.createElement('iframe'); f.id = 'plPrintFrame'; f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
@@ -3926,8 +3971,8 @@ function renderPlan(){
     <div class="panel"><h3>📅 পরীক্ষার সাল</h3><select class="a-in" id="seYear" aria-label="সাল">${ys.map(v => `<option value="${esc(v.label)}"${v.label === y ? ' selected' : ''}>${esc(v.label)}</option>`).join('')}</select></div>
     <div class="panel"><h3>⚙️ সেটিং</h3>
       <div class="ce-form">
-        <label>এক বেঞ্চে কতজন বসবে? <small>(২ বা তার বেশি)</small><input class="a-in" id="plBs" inputmode="numeric" maxlength="2" value="${toBn(bs)}"></label>
-        <p class="hint">${toBn(list.length)} জন পরীক্ষার্থী • ${toBn(cs.length)} কেন্দ্র • মোট ${toBn(seats)} আসন (প্রায় ${toBn(Math.ceil(seats / bs))} বেঞ্চ)। কেন্দ্র ও কক্ষের ক্রম অনুযায়ী ভরাট হবে, শ্রেণি ও রোল ক্রমে।</p>
+        <label>ডিফল্ট: এক বেঞ্চে কতজন <small>(যে কক্ষে আলাদা দেওয়া নেই; কক্ষ অনুযায়ী আলাদা দিতে কেন্দ্র ও কক্ষ পেইজে যান)</small><input class="a-in" id="plBs" inputmode="numeric" maxlength="2" value="${toBn(bs)}"></label>
+        <p class="hint">${toBn(list.length)} জন পরীক্ষার্থী • ${toBn(cs.length)} কেন্দ্র • মোট ${toBn(seats)} আসন (প্রায় ${toBn(cs.reduce((a, c) => a + c.rooms.reduce((b2, r) => b2 + Math.ceil((r.seats || 0) / (r.bs || bs)), 0), 0))} বেঞ্চ)। কেন্দ্র ও কক্ষের ক্রম অনুযায়ী ভরাট হবে, শ্রেণি ও রোল ক্রমে।</p>
         <button type="button" class="a-btn primary" id="plGo">⚡ সিট প্ল্যান তৈরি করুন</button>
         ${plan ? '<button type="button" class="a-btn danger sm" id="plClear">🗑️ বর্তমান প্ল্যান মুছুন</button>' : ''}
       </div>
@@ -3962,7 +4007,7 @@ document.addEventListener('click', async e => {
     if(!cs.some(c => ceSeats(c) > 0)) return toast('আগে কেন্দ্র, কক্ষ ও আসন সংখ্যা দিন', 'err');
     if(Store.seatPlan(y) && !await askConfirm({ title:'নতুন করে তৈরি করবেন?', icon:'⚠️', tone:'warn', confirmText:'হ্যাঁ, তৈরি করুন', message:'আগের সিট বণ্টন বদলে যাবে।', items:[y + ' সাল'] })) return;
     seState.bs = bsn; const res = seArrange(list, cs, bsn);
-    const plan = { bs:bsn, at:new Date().toISOString(), sig:plSig(y, bsn), benches:res.benches, a:res.a };
+    const plan = { bs:bsn, rbs:res.rbs, at:new Date().toISOString(), sig:plSig(y, bsn), benches:res.benches, a:res.a };
     if(!Store.saveSeatPlan(y, plan)){ Store.reload(); return toast('সংরক্ষণ করা যায়নি', 'err'); }
     Store.log('সিট প্ল্যান ' + y + ': স্বয়ংক্রিয় বণ্টন (বেঞ্চে ' + bsn + ' জন, আসন পেয়েছে ' + Object.keys(res.a).length + ', পায়নি ' + res.un.length + ')');
     renderPlan(); toast(res.un.length ? 'তৈরি হয়েছে, কিছু শিক্ষার্থী আসন পায়নি' : 'সিট প্ল্যান তৈরি হয়েছে', res.un.length ? 'err' : undefined);
