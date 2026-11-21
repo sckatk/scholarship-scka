@@ -450,6 +450,14 @@ body.cloud .demo-strip,body.cloud .notice-demo:not(.warn){display:none!important
 #adminApp .who span{display:inline}
 #adminApp .content{padding:24px 24px 50px}}
 #adminApp{background:#f3f7f5;min-height:100vh;color:var(--ink)}
+.wa-fab{position:fixed;right:16px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;height:58px;min-width:58px;padding:0 17px;border-radius:99px;background:#25d366;color:#fff;font-weight:800;font-size:.95rem;text-decoration:none;box-shadow:0 10px 26px -8px rgba(18,140,70,.85),0 2px 6px rgba(0,0,0,.18);transition:transform .2s}
+.wa-fab[hidden]{display:none!important}.wa-fab:active{transform:scale(.94)}.wa-fab svg{width:30px;height:30px;flex:none}
+.wa-fab::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid #25d366;animation:waPing 2.4s ease-out infinite;pointer-events:none}
+@keyframes waPing{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+@media (max-width:520px){.wa-fab #waTxt{display:none}.wa-fab{padding:0;width:58px;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.wa-fab::before{animation:none}}
+body.tmode .wa-fab,body.cstage .wa-fab{display:none!important}
+@media print{.wa-fab{display:none!important}}
 #adminApp[hidden],#publicSite[hidden]{display:none!important}
 #adminApp .gate{
   min-height:100vh;display:grid;place-items:center;padding:20px 16px;
@@ -1130,6 +1138,7 @@ body.page-papers .back-home{display:flex}
   <div class="container"><div class="copy">© All rights reserved 2018-<span id="yr">2026</span> || স্বপ্নছায়া ছাত্র কল্যাণ এসোসিয়েশন</div></div>
 </footer>
 
+<a id="waFab" class="wa-fab" href="#" target="_blank" rel="noopener noreferrer" hidden aria-label="হোয়াটসঅ্যাপে মেসেজ করুন"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg><span id="waTxt">মেসেজ করুন</span></a>
 </div><!-- /#publicSite -->
 
 <div id="adminApp" hidden>
@@ -1761,8 +1770,19 @@ function applySiteSettings(){
   $('contactGrid').innerHTML = items.length
     ? items.map(([ic, t, v]) => '<div class="ft-item"><span class="ic">' + ic + '</span><div><small>' + t + '</small>' + v + '</div></div>').join('')
     : '<div class="ft-item"><div><small>যোগাযোগ</small><span class="v">শীঘ্রই যুক্ত করা হবে।</span></div></div>';
+  renderWa();
 }
 
+function waNumber(v){
+  let d = String(v || '').replace(/[০-৯]/g, x => '০১২৩৪৫৬৭৮৯'.indexOf(x)).replace(/\D/g, '');
+  if(/^01\d{9}$/.test(d)) d = '88' + d; else if(/^1\d{9}$/.test(d)) d = '880' + d;
+  return /^\d{11,15}$/.test(d) ? d : '';
+}
+function renderWa(){
+  const w = Store.settings().wa || {}, el = $('waFab'), n = waNumber(w.number);
+  if(!el) return; if(!w.on || !n){ el.hidden = true; return; }
+  el.href = 'https://wa.me/' + n + (w.msg ? '?text=' + encodeURIComponent(w.msg) : ''); $('waTxt').textContent = w.label || 'মেসেজ করুন'; el.hidden = false;
+}
 function setupReveal(){
   const els = document.querySelectorAll('#publicSite .sec-head, #publicSite .info-card, #publicSite .intro-card');
   if(!('IntersectionObserver' in window)){ return; }
@@ -2841,6 +2861,19 @@ function renderSettings(){
     </div>
 
     <div class="panel">
+      <h3>💬 হোয়াটসঅ্যাপ বাটন</h3>
+      <label style="display:flex;gap:8px;align-items:center;font-size:.95rem;cursor:pointer;font-weight:600"><input type="checkbox" id="waOn"${(c.wa || {}).on ? ' checked' : ''}> সাইটে ভাসমান হোয়াটসঅ্যাপ বাটন দেখান</label>
+      <div class="stack" style="margin-top:12px">
+        <div><label class="fl" for="waNum">হোয়াটসঅ্যাপ নম্বর</label><input class="a-in" id="waNum" inputmode="tel" value="${V((c.wa || {}).number)}" placeholder="০১৭XXXXXXXX"></div>
+        <div><label class="fl" for="waMsg">আগে থেকে লেখা মেসেজ (ঐচ্ছিক)</label><input class="a-in" id="waMsg" maxlength="200" value="${V((c.wa || {}).msg)}" placeholder="আসসালামু আলাইকুম, বৃত্তি পরীক্ষা সম্পর্কে জানতে চাই।"></div>
+        <div><label class="fl" for="waLbl">বাটনের লেখা (বড় স্ক্রিনে দেখাবে)</label><input class="a-in" id="waLbl" maxlength="24" value="${V((c.wa || {}).label)}" placeholder="মেসেজ করুন"></div>
+      </div>
+      <p class="hint">নম্বর ০১ দিয়ে দিলে স্বয়ংক্রিয়ভাবে বাংলাদেশের কোড (+৮৮) বসে যাবে। বাটন চাপলে সরাসরি ওই নম্বরে হোয়াটসঅ্যাপ চ্যাট খুলবে।</p>
+      <div class="a-err" id="eWa" role="alert"></div>
+      <div class="gbar"><button type="button" class="a-btn primary" id="waSave">💾 সংরক্ষণ করুন</button></div>
+    </div>
+
+    <div class="panel">
       <h3>🔐 পাসওয়ার্ড পরিবর্তন</h3>
       <form id="credForm" autocomplete="off" novalidate>
         <div class="stack">
@@ -2899,6 +2932,12 @@ document.addEventListener('click', async e => {
     const y = $('sgYear').value, url = $('sgUrl').value.trim(), er = urlProblem(url, 'স্বাক্ষরের ছবি'); $('eSig').textContent = er; if(er || !y) return;
     if(!Store.setYearSig(y, { sigUrl:url, sigName:$('sgName').value.trim(), sigTitle:$('sgTitle').value.trim() })){ Store.reload(); return toast('সংরক্ষণ করা যায়নি', 'err'); }
     Store.log(y + ' সালের স্বাক্ষর হালনাগাদ করা হয়েছে'); toast(y + ' সালের স্বাক্ষর সংরক্ষিত হয়েছে'); renderSettings(); $('sgYear').value = y; fillSig();
+  }
+  else if(t.id === 'waSave'){
+    const on = $('waOn').checked, raw = $('waNum').value.trim(), n = waNumber(raw);
+    const er = (on && !raw) ? 'বাটন চালু করতে নম্বর দিন।' : (raw && !n) ? 'নম্বরটি সঠিক নয়। যেমন: ০১৭১২৩৪৫৬৭৮' : '';
+    $('eWa').textContent = er; if(er) return;
+    saveSettings({ wa:{ on, number:raw, msg:$('waMsg').value.trim(), label:$('waLbl').value.trim() } }, 'হোয়াটসঅ্যাপ বাটন হালনাগাদ করা হয়েছে');
   }
   else if(t.id === 'ctSave'){
     const mail = $('sMail').value.trim(), er = mail && !/^\S+@\S+\.\S+$/.test(mail) ? 'ইমেইল ঠিকানাটি সঠিক নয়।' : '';
